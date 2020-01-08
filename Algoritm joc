@@ -1,0 +1,105 @@
+#include <iostream>
+#include <stack>
+using namespace std;
+
+bool endGame = false;
+int x, y, marimePiesa, randJucator, option;
+
+struct Piesa {
+	int DimensiunePiesa;
+	int Jucator;
+}mutare;
+
+struct TablaJoc{
+	stack<Piesa> Stiva;
+
+}tablaJoc[4][4];
+
+bool tablaPlina() {
+	for (int i = 1; i < 4; i++) {
+		for (int j = 1; j < 4; j++) {
+			if (tablaJoc[i][j].Stiva.empty()) return 0;
+		}
+	}
+	return 1;
+}
+
+int verificareSfarsitJoc(int i, int j) {
+	if (tablaJoc[1][j].Stiva.top().Jucator == tablaJoc[2][j].Stiva.top().Jucator && tablaJoc[2][j].Stiva.top().Jucator == tablaJoc[3][j].Stiva.top().Jucator && !tablaJoc[3][j].Stiva.empty()) return tablaJoc[i][j].Stiva.top().Jucator;
+	if (tablaJoc[i][1].Stiva.top().Jucator == tablaJoc[i][2].Stiva.top().Jucator && tablaJoc[i][2].Stiva.top().Jucator == tablaJoc[i][3].Stiva.top().Jucator && !tablaJoc[i][3].Stiva.empty()) return tablaJoc[i][j].Stiva.top().Jucator;
+	if (tablaJoc[1][1].Stiva.top().Jucator == tablaJoc[2][2].Stiva.top().Jucator && tablaJoc[2][2].Stiva.top().Jucator == tablaJoc[3][3].Stiva.top().Jucator && !tablaJoc[3][3].Stiva.empty()) return tablaJoc[i][j].Stiva.top().Jucator;
+	if (tablaJoc[1][3].Stiva.top().Jucator == tablaJoc[2][2].Stiva.top().Jucator && tablaJoc[2][2].Stiva.top().Jucator == tablaJoc[3][1].Stiva.top().Jucator && !tablaJoc[3][1].Stiva.empty()) return tablaJoc[i][j].Stiva.top().Jucator;
+	return 0;
+}
+
+void selecteazaPiesaTabla(int i , int j) {
+	
+	if (!tablaJoc[i][j].Stiva.empty() && tablaJoc[i][j].Stiva.top().Jucator == randJucator)
+	{
+		mutare.DimensiunePiesa = tablaJoc[i][j].Stiva.top().DimensiunePiesa;
+		mutare.Jucator = randJucator;
+		tablaJoc[i][j].Stiva.pop();
+	}
+	cout << endl;
+}
+
+void selecteazaPiesaLangaTabla(int i , int j)
+{
+	cout << "Marimea piesei : "; cin  >> marimePiesa;
+	mutare.Jucator = randJucator;
+	mutare.DimensiunePiesa = marimePiesa;
+	cout << endl;
+}
+
+void afiseazaMatrice() {
+	for (int i = 1; i < 4; i++) {
+		for (int j = 1; j < 4; j++) {
+			if (tablaJoc[i][j].Stiva.empty()) cout << 0 << " ";
+			else cout << tablaJoc[i][j].Stiva.top().Jucator << " ";
+		}
+		cout << endl;
+	}
+}
+
+int main()
+{
+	randJucator = 1;
+	while (!endGame) {
+		cout << endl << "Alege o piesa de pe margine : 1" << endl;
+		cout << "Alege o piesa de pe tabla: 2" << endl;
+		cout << "Optiunea si coordonatele piese : "; cin >> option >> x >> y;
+
+		if (option == 1)
+		{
+			cout << "Marimea piesei : "; cin >> marimePiesa;
+			mutare.Jucator = randJucator;
+			mutare.DimensiunePiesa = marimePiesa;
+		}
+		else if (option == 2)
+		{
+			if (!tablaJoc[x][y].Stiva.empty() && tablaJoc[x][y].Stiva.top().Jucator == randJucator)
+			{
+				mutare.DimensiunePiesa = tablaJoc[x][y].Stiva.top().DimensiunePiesa;
+				mutare.Jucator = randJucator;
+				tablaJoc[x][y].Stiva.pop();
+				cout << "Unde doriti sa o mutati ? "; cin >> x >> y;
+			}
+		}
+
+		if (tablaJoc[x][y].Stiva.empty()) tablaJoc[x][y].Stiva.push(mutare);
+		else if (tablaJoc[x][y].Stiva.size() < 3 && tablaJoc[x][y].Stiva.top().DimensiunePiesa < mutare.DimensiunePiesa) {
+			 tablaJoc[x][y].Stiva.push(mutare);
+		}
+		
+		if (tablaPlina()) {
+			if (verificareSfarsitJoc(x, y) == 1) cout << "Jucatorul 1 a castigat !", endGame = true;
+			else if (verificareSfarsitJoc(x, y) == 2) cout << "Jucatorul 2 a castigat !", endGame = true;
+
+		}
+		
+		
+		if (randJucator == 1) randJucator = 2;
+		else if(randJucator == 2) randJucator = 1;
+		afiseazaMatrice();
+	}
+}
