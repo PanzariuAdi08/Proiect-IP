@@ -1,0 +1,84 @@
+#include <iostream>
+#include <winbgim.h>
+#include <graphics.h>
+using namespace std;
+#define RELAXAT 0
+#define APASAT 1
+#define CONTINUA 1
+#define OPRESTE 0
+void buton(int x, int y,char *text, int stare)
+{
+    int latime=getmaxx(),inaltime=getmaxy();
+    if(stare==RELAXAT)
+    {
+        setcolor(BLUE);
+        rectangle(x-latime/4,y-inaltime/20,x+latime/4,y+inaltime/20);
+        setfillstyle(SOLID_FILL,BLUE);
+        floodfill(x,y,BLUE);
+        setcolor(WHITE);
+        settextjustify(CENTER_TEXT,CENTER_TEXT);
+        settextstyle(SANS_SERIF_FONT,HORIZ_DIR,6);
+        setbkcolor(BLUE);
+        outtextxy(x,y+inaltime/30,text);
+    }
+    else
+    {
+        setcolor(WHITE);
+        setlinestyle(SOLID_LINE,1,THICK_WIDTH);
+        rectangle(x-latime/4,y-inaltime/20,x+latime/4,y+inaltime/20);
+        setfillstyle(SOLID_FILL,BLUE);
+        floodfill(x,y,WHITE);
+        setcolor(WHITE);
+        settextjustify(CENTER_TEXT,CENTER_TEXT);
+        settextstyle(SANS_SERIF_FONT,HORIZ_DIR,6);
+        setbkcolor(BLUE);
+        outtextxy(x,y+inaltime/30,text);
+    }
+}
+void titlu()
+{
+    setcolor(WHITE);
+    settextjustify(CENTER_TEXT,CENTER_TEXT);
+    settextstyle(SANS_SERIF_FONT,HORIZ_DIR,6);
+    outtextxy(getmaxx()/2,getmaxy()/8,"GOBBLET GOBBLERS");
+}
+void meniu()
+{
+    int latime=getmaxx(),inaltime=getmaxy(),x,y,j=CONTINUA;
+    setbkcolor(RED);
+    cleardevice();
+    titlu();
+    do
+    {
+    x=latime/2;
+    y=inaltime/3;
+    if(mousex()>x-latime/4 && mousex()<x+latime/4 && mousey()>y-inaltime/20 && mousey()<y+inaltime/20)
+        buton(x,y,"INCEPE JOC",APASAT);
+    else
+        buton(x,y,"INCEPE JOC",RELAXAT);
+    y=inaltime/2;
+    if(mousex()>x-latime/4 && mousex()<x+latime/4 && mousey()>y-inaltime/20 && mousey()<y+inaltime/20)
+    {
+        buton(x,y,"OPTIUNI",APASAT);
+    }
+    else
+        buton(x,y,"OPTIUNI",RELAXAT);
+    y=inaltime*4/6;
+    if(mousex()>x-latime/4 && mousex()<x+latime/4 && mousey()>y-inaltime/20 && mousey()<y+inaltime/20)
+    {
+        buton(x,y,"IESIRE JOC",APASAT);
+        if(ismouseclick(WM_LBUTTONUP))
+            j=OPRESTE;
+    }
+    else
+        buton(x,y,"IESIRE JOC",RELAXAT);
+    }
+    while(j);
+}
+    int main()
+{
+    int latime=900,inaltime=600;
+    initwindow(latime,inaltime);
+    meniu();
+    closegraph();
+}
