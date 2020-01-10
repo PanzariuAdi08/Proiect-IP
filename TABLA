@@ -1,0 +1,273 @@
+#include <iostream>
+#include <winbgim.h>
+#include <graphics.h>
+using namespace std;
+#define MARE 0.09
+#define MIJLOCIE 0.07
+#define MIC 0.05
+#define J1 RED
+#define J2 BLUE
+#define SELECTAT 1
+#define NESELECTAT 0
+int starej1[6],starej2[6],tura=J2,selectat=-1;
+int piesa(int x, int y, float marime ,int jucator, int stare)
+{
+    int inaltime=getmaxy();
+    if(stare==NESELECTAT)
+    {
+        setcolor(jucator);
+        setlinestyle(SOLID_LINE,1,THICK_WIDTH);
+        circle(x,y,inaltime*marime);
+        setfillstyle(SOLID_FILL,jucator);
+        fillellipse(x,y,getmaxy()*marime,getmaxy()*marime);
+         setlinestyle(SOLID_LINE,1,NORM_WIDTH);
+
+    }
+    else
+    {
+        setcolor(YELLOW);
+        setlinestyle(SOLID_LINE,1,THICK_WIDTH);
+        circle(x,y,getmaxy()*marime);
+        setfillstyle(SOLID_FILL,jucator);
+       fillellipse(x,y,getmaxy()*marime,getmaxy()*marime);
+        setlinestyle(SOLID_LINE,1,NORM_WIDTH);
+    }
+}
+void rama()
+{
+    int latime=getmaxx(),inaltime=getmaxy();
+    setcolor(WHITE);
+    line(0.2*latime,0,0.2*latime,inaltime);
+    line(0.8*latime,0,0.8*latime,inaltime);
+    line(0,0.15*inaltime,latime,0.15*inaltime);
+}
+void liniiajutatoare()
+{
+    int latime=getmaxx(),inaltime=getmaxy();
+    setcolor(WHITE);
+    line(0,0.36*inaltime,0.2*latime,0.36*inaltime);
+    line(0,0.57*inaltime,0.2*latime,0.57*inaltime);
+    line(0,0.79*inaltime,0.2*latime,0.79*inaltime);
+    line(0.8*latime,0.36*inaltime,latime,0.36*inaltime);
+    line(0.8*latime,0.57*inaltime,latime,0.57*inaltime);
+    line(0.8*latime,0.79*inaltime,latime,0.79*inaltime);
+}
+void tablajoc()
+{
+    int latime=getmaxx(),inaltime=getmaxy();
+    setcolor(WHITE);
+    line(latime*0.254,inaltime*0.43,latime*0.254+inaltime*0.85,inaltime*0.43);
+    line(latime*0.254,inaltime*0.71,latime*0.254+inaltime*0.85,inaltime*0.71);
+    line(latime*0.254,inaltime*0.15,latime*0.254,inaltime);
+    line(latime*0.254+inaltime*0.28,inaltime*0.15,latime*0.254+inaltime*0.28,inaltime);
+    line(latime*0.254+2*inaltime*0.28,inaltime*0.15,latime*0.254+2*inaltime*0.28,inaltime);
+    line(latime*0.254+3*inaltime*0.28+8,inaltime*0.15,latime*0.254+3*inaltime*0.28+8,inaltime);
+
+}
+int creeazapiese()
+{
+    int inaltime=getmaxy(),latime=getmaxx();
+if(tura==J1)
+{
+    if(mousex()>0 && mousex()<latime*0.20)
+    {
+        if(mousey()>inaltime*0.15 && mousey()<inaltime*0.36)
+            {
+            if(ismouseclick(WM_LBUTTONDOWN))
+                if(selectat==-1)
+                    selectat=0;
+                else
+                    if(selectat==0)
+                    {
+                        selectat=-1;
+                        starej1[0]=NESELECTAT;
+                    }
+            }
+        if(mousey()>inaltime*0.36 && mousey()<inaltime*0.57)
+            {
+            if(ismouseclick(WM_LBUTTONDOWN))
+                if(selectat==-1)
+                    selectat=1;
+                else
+                    if(selectat==1)
+                        {
+                        selectat=-1;
+                         starej1[1]=NESELECTAT;
+                        }
+            }
+        if(mousey()>inaltime*0.57 && mousey()<inaltime*0.78)
+            {
+                if(mousex()<latime*0.1)
+                {
+                    if(ismouseclick(WM_LBUTTONDOWN))
+                        if(selectat==-1)
+                            selectat=2;
+                        else
+                            if(selectat==2)
+                            {
+                                selectat=-1;
+                                starej1[2]=NESELECTAT;
+                            }
+                }
+                else
+                    if(ismouseclick(WM_LBUTTONDOWN))
+                        if(selectat==-1)
+                            selectat=3;
+                        else
+                            if(selectat==3)
+                            {
+                                selectat=-1;
+                                starej1[3]=NESELECTAT;
+                            }
+            }
+        if(mousey()>inaltime*0.78)
+            {
+                if(mousex()<latime*0.1)
+                {
+                    if(ismouseclick(WM_LBUTTONDOWN))
+                        if(selectat==-1)
+                            selectat=4;
+                        else
+                            if(selectat==4)
+                            {
+                                selectat=-1;
+                                starej1[4]=NESELECTAT;
+                            }
+                }
+                else
+                    if(ismouseclick(WM_LBUTTONDOWN))
+                        if(selectat==-1)
+                            selectat=5;
+                        else
+                            if(selectat==5)
+                            {
+                                selectat=-1;
+                                starej1[5]=NESELECTAT;
+                            }
+            }
+        }
+        if(selectat!=-1)
+            starej1[selectat]=SELECTAT;
+        clearmouseclick(WM_LBUTTONDOWN);
+}
+else
+{
+        if(mousex()>latime*0.8)
+    {
+        if(mousey()>inaltime*0.15 && mousey()<inaltime*0.36)
+            {
+            if(ismouseclick(WM_LBUTTONDOWN))
+                if(selectat==-1)
+                    selectat=0;
+                else
+                    if(selectat==0)
+                    {
+                        selectat=-1;
+                        starej2[0]=NESELECTAT;
+                    }
+            }
+        if(mousey()>inaltime*0.36 && mousey()<inaltime*0.57)
+            {
+            if(ismouseclick(WM_LBUTTONDOWN))
+                if(selectat==-1)
+                    selectat=1;
+                else
+                    if(selectat==1)
+                        {
+                        selectat=-1;
+                         starej2[1]=NESELECTAT;
+                        }
+            }
+        if(mousey()>inaltime*0.57 && mousey()<inaltime*0.78)
+            {
+                if(mousex()>latime*0.8 && mousex()<latime*0.9)
+                {
+                    if(ismouseclick(WM_LBUTTONDOWN))
+                        if(selectat==-1)
+                            selectat=2;
+                        else
+                            if(selectat==2)
+                            {
+                                selectat=-1;
+                                starej2[2]=NESELECTAT;
+                            }
+                }
+                else
+                    if(ismouseclick(WM_LBUTTONDOWN))
+                        if(selectat==-1)
+                            selectat=3;
+                        else
+                            if(selectat==3)
+                            {
+                                selectat=-1;
+                                starej2[3]=NESELECTAT;
+                            }
+            }
+        if(mousey()>inaltime*0.78)
+            {
+                if(mousex()>latime*0.8 && mousex()<latime*0.9)
+                {
+                    if(ismouseclick(WM_LBUTTONDOWN))
+                        if(selectat==-1)
+                            selectat=4;
+                        else
+                            if(selectat==4)
+                            {
+                                selectat=-1;
+                                starej2[4]=NESELECTAT;
+                            }
+                }
+                else
+                    if(ismouseclick(WM_LBUTTONDOWN))
+                        if(selectat==-1)
+                            selectat=5;
+                        else
+                            if(selectat==5)
+                            {
+                                selectat=-1;
+                                starej2[5]=NESELECTAT;
+                            }
+            }
+        }
+        if(selectat!=-1)
+            starej2[selectat]=SELECTAT;
+        clearmouseclick(WM_LBUTTONDOWN);
+
+}
+        //p1
+        piesa(0.1*latime,0.255*inaltime,MARE,J1,starej1[0]);
+        piesa(0.1*latime,0.465*inaltime,MARE,J1,starej1[1]);
+        piesa(0.05*latime,0.675*inaltime,MIJLOCIE,J1,starej1[2]);
+        piesa(0.15*latime,0.675*inaltime,MIJLOCIE,J1,starej1[3]);
+        piesa(0.05*latime,0.895*inaltime,MIC,J1,starej1[4]);
+        piesa(0.15*latime,0.895*inaltime,MIC,J1,starej1[5]);
+        //p1
+        //p2
+        piesa(0.9*latime,0.255*inaltime,MARE,J2,starej2[0]);
+        piesa(0.9*latime,0.465*inaltime,MARE,J2,starej2[1]);
+        piesa(0.85*latime,0.675*inaltime,MIJLOCIE,J2,starej2[2]);
+        piesa(0.95*latime,0.675*inaltime,MIJLOCIE,J2,starej2[3]);
+        piesa(0.85*latime,0.895*inaltime,MIC,J2,starej2[4]);
+        piesa(0.95*latime,0.895*inaltime,MIC,J2,starej2[5]);
+        //p2
+return selectat;
+}
+void tabla()
+{
+    int latime=getmaxx(),inaltime=getmaxy(),selectat=-1;
+    rama();
+    liniiajutatoare();
+    tablajoc();
+    do
+    {
+        creeazapiese();
+    }
+    while(1);
+}
+int main()
+{
+   initwindow(1366,764);
+   tabla();
+   getch();
+   closegraph();
+}
