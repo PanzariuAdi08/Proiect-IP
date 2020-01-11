@@ -501,6 +501,134 @@ void joaca()
 		afiseazaMatrice();
 	}
 }
+
+struct ManagerPieseStructura {
+	int pieseDepuse = 0;
+	int x = 0, y = 0;
+	bool activ = 1;
+};
+
+struct Piese2 {
+	ManagerPieseStructura piesa1;
+	ManagerPieseStructura piesa2;
+}managerPiese[4];
+
+int defensiva(int x1 , int y1 , int x2 , int y2 , int x3 , int y3) // La x3,y3 se incearca defensiva 
+{
+	if (tablaJoc[x1][y1].Stiva.top().Jucator == 1 && tablaJoc[x2][y2].Stiva.top().Jucator == 1 && !tablaJoc[x1][y1].Stiva.empty() && !tablaJoc[x2][y2].Stiva.empty() && (tablaJoc[x3][y3].Stiva.empty() || tablaJoc[x3][y3].Stiva.top().Jucator == 1))
+	{
+		if (tablaJoc[x3][y3].Stiva.empty()) // Daca nu este nimic , PC-ul pune prima piesa disponibila
+		{
+			gasit = 0;
+
+			for (int i = 1; i <= 3 && !gasit; i++) {
+
+				if (managerPiese[i].piesa1.activ) {
+					managerPiese[i].piesa1.pieseDepuse++;
+					managerPiese[i].piesa1.x = x3;
+					managerPiese[i].piesa1.y = y3;
+					gasit = 1;
+					return 1;
+				}
+				else if (managerPiese[i].piesa2.activ)
+				{
+					managerPiese[i].piesa2.pieseDepuse++;
+					managerPiese[i].piesa2.x = x3;
+					managerPiese[i].piesa2.y = y3;
+					gasit = 1;
+					return 1;
+				}
+			}
+		}
+		else
+		{
+
+			dimensiunePiesaCurenta = tablaJoc[1][3].Stiva.top().DimensiunePiesa;
+
+			for (int i = tablaJoc[1][3].Stiva.top().DimensiunePiesa + 1; i <= 3 && !gasit; i++) //Cautam prima piesa disponibila mai mare decat piesa deja pusa
+			{
+				if (managerPiese[i].piesa1.activ)
+				{
+					managerPiese[i].piesa1.pieseDepuse++;
+					managerPiese[i].piesa1.x = x3;
+					managerPiese[i].piesa1.y = y3;
+					gasit = 1;
+					return 1;
+				}
+				else if (managerPiese[i].piesa2.activ)
+				{
+					managerPiese[i].piesa2.pieseDepuse++;
+					managerPiese[i].piesa2.x = x3;
+					managerPiese[i].piesa2.y = y3;
+					gasit = 1;
+					return 1;
+				}
+			}
+		}
+	}
+	return 0;
+}
+
+int dimensiunePiesaCurenta;
+bool gasit;
+
+int randComputer() {
+	//Prima linie
+	if (defensiva(1, 1, 1, 2, 1, 3)) return 0;
+	if (defensiva(1, 1, 1, 3, 1, 2)) return 0;
+	if (defensiva(1, 2, 1, 3, 1, 1)) return 0;
+
+	//A doua linie
+	if (defensiva(2, 1, 2, 2, 2, 3)) return 0;
+	if (defensiva(2, 1, 2, 3, 2, 2)) return 0;
+	if (defensiva(2, 2, 2, 3, 2, 1)) return 0;
+
+	//A treia linie
+	if (defensiva(3, 1, 3, 2, 3, 3)) return 0;
+	if (defensiva(3, 1, 3, 3, 3, 2)) return 0;
+	if (defensiva(3, 2, 3, 3, 3, 1)) return 0;
+
+	//Prima coloana
+	if (defensiva(1, 1, 2, 1, 3, 1)) return 0;
+	if (defensiva(1, 1, 3, 1, 2, 1)) return 0;
+	if (defensiva(2, 1, 3, 1, 1, 1)) return 0;
+
+	//A doua  coloana
+	if (defensiva(1, 2, 2, 2, 3, 2)) return 0;
+	if (defensiva(1, 2, 3, 2, 2, 2)) return 0;
+	if (defensiva(2, 2, 3, 2, 1, 2)) return 0;
+
+	//A treia coloana
+	if (defensiva(1, 3, 2, 3, 3, 3)) return 0;
+	if (defensiva(1, 3, 3, 3, 2, 3)) return 0;
+	if (defensiva(2, 3, 3, 3, 1, 3)) return 0;
+
+	//Coloana principala
+	if (defensiva(1, 1, 2, 2, 3, 1)) return 0;
+	if (defensiva(1, 1, 3, 3, 2, 2)) return 0;
+	if (defensiva(2, 2, 3, 3, 1, 1)) return 0;
+
+	//Coloana secundara
+	if (defensiva(1, 3, 2, 2, 3, 1)) return 0;
+	if (defensiva(2, 2, 3, 1, 1, 3)) return 0;
+	if (defensiva(1, 3, 3, 1, 2, 2)) return 0;
+}
+
+int verificareMatrice() {
+
+	if (!tablaJoc[1][3].Stiva.empty() && tablaJoc[1][1].Stiva.top().Jucator == tablaJoc[1][2].Stiva.top().Jucator && tablaJoc[1][2].Stiva.top().Jucator == tablaJoc[1][3].Stiva.top().Jucator) return tablaJoc[1][3].Stiva.top().Jucator;
+	if (!tablaJoc[2][3].Stiva.empty() && tablaJoc[2][1].Stiva.top().Jucator == tablaJoc[2][2].Stiva.top().Jucator && tablaJoc[2][2].Stiva.top().Jucator == tablaJoc[2][3].Stiva.top().Jucator) return tablaJoc[1][3].Stiva.top().Jucator;
+	if (!tablaJoc[3][3].Stiva.empty() && tablaJoc[3][1].Stiva.top().Jucator == tablaJoc[3][2].Stiva.top().Jucator && tablaJoc[3][2].Stiva.top().Jucator == tablaJoc[3][3].Stiva.top().Jucator) return tablaJoc[1][3].Stiva.top().Jucator;
+
+	if (!tablaJoc[3][1].Stiva.empty() && tablaJoc[1][1].Stiva.top().Jucator == tablaJoc[2][1].Stiva.top().Jucator && tablaJoc[2][1].Stiva.top().Jucator == tablaJoc[3][1].Stiva.top().Jucator) return tablaJoc[3][1].Stiva.top().Jucator;
+	if (!tablaJoc[3][2].Stiva.empty() && tablaJoc[1][2].Stiva.top().Jucator == tablaJoc[2][2].Stiva.top().Jucator && tablaJoc[2][2].Stiva.top().Jucator == tablaJoc[3][2].Stiva.top().Jucator) return tablaJoc[3][1].Stiva.top().Jucator;
+	if (!tablaJoc[3][3].Stiva.empty() && tablaJoc[1][3].Stiva.top().Jucator == tablaJoc[2][3].Stiva.top().Jucator && tablaJoc[2][3].Stiva.top().Jucator == tablaJoc[3][3].Stiva.top().Jucator) return tablaJoc[3][1].Stiva.top().Jucator;
+
+	if (tablaJoc[1][1].Stiva.top().Jucator == tablaJoc[2][2].Stiva.top().Jucator && tablaJoc[2][2].Stiva.top().Jucator == tablaJoc[3][3].Stiva.top().Jucator && !tablaJoc[3][3].Stiva.empty()) return tablaJoc[2][2].Stiva.top().Jucator; // Diagonala principala
+	if (tablaJoc[1][3].Stiva.top().Jucator == tablaJoc[2][2].Stiva.top().Jucator && tablaJoc[2][2].Stiva.top().Jucator == tablaJoc[3][1].Stiva.top().Jucator && !tablaJoc[3][1].Stiva.empty()) return tablaJoc[2][2].Stiva.top().Jucator; // Diagonala secundara
+	return -1;
+}
+
 int main()
 {
     initwindow(1366,764);
