@@ -491,11 +491,9 @@ void joaca()
 			 tablaJoc[x][y].Stiva.push(mutare);
 		}
 
-		if (tablaPlina()) {
+		
 			if (verificareSfarsitJoc(x, y) == 1) cout << "Jucatorul 1 a castigat !", endGame = true;
-			else if (verificareSfarsitJoc(x, y) == 2) cout << "Jucatorul 2 a castigat !", endGame = true;
-
-		}
+			else if (verificareSfarsitJoc(x, y) == 2) cout << "Jucatorul 2 a castigat !", endGame = true
 
 
 		if (randJucator == 1) randJucator = 2;
