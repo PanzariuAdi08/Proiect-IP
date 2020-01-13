@@ -16,6 +16,7 @@ using namespace std;
 #define INVALID 3
 #define MULTIPLAYER 1
 #define CALCULATOR_STRATEGIE 2
+#define CALCULATOR_ALEATORIU 3
 bool endGame = false;
 int x, y, marimePiesa, randJucator, option;
 int latime,inaltime;
@@ -646,19 +647,26 @@ void inlocuire(int &i)
 }
 int gasirePiesaPotrivita()
 {
-	for (int i = 1; i <= 6 ; i++)
+
+    if(tablaPlina())
+    {
+        for (int i = 6; i >= 1; i--)
+        {
+            cout <<"mortii ma-tii"<<endl;
+            if (managerPiese[i].disponibil)
+                return i;
+        }
+    }
+    else
+    {
+        for (int i = 6; i >= 1 ; i--)
 	{
-		if (!managerPiese[i].peTabla && managerPiese[i].disponibil)
+		if (!managerPiese[i].peTabla)
         {
             return i;
         }
 	}
-
-	for (int i = 6; i >= 1; i--)
-	{
-		if (managerPiese[i].disponibil) return i;
-	}
-
+    }
 	return 0;
 }
 void graficMutareCalculator(int m, int i, int j)
@@ -696,6 +704,7 @@ int defensiva(Punct a , Punct b , Punct c) //
 		}
 		else if(tablaPlina()) //Pune cea mai mare piesa disponibila
 		{
+
 			int pozitiePiesaMaxima = gasirePiesaPotrivita();
 
 			if (pozitiePiesaMaxima == 5 || pozitiePiesaMaxima == 6)	mutare.DimensiunePiesa = 3;
@@ -714,6 +723,8 @@ int defensiva(Punct a , Punct b , Punct c) //
 			graficMutareCalculator(i,c.x,c.y);
 			cout << "Pus din defensiva .2  coords  " << c.x << " " << c.y << endl;
 			return 1;
+
+
 		}
 
 	}
@@ -767,6 +778,7 @@ int ataca(Punct a, Punct b, Punct c)
 				cout << "Pus din atac .2  coords  " << c.x << " " << c.y << endl;
 				return 1;
 			}
+
 		}
 
 	}
@@ -1149,6 +1161,69 @@ void golirestiva()
         j2.pozitie[i]=0;
     }
 }
+int mutareComputerAleatoriu()
+{
+	bool gasit = 0;
+	int randomI, randomJ;
+	mutare.Jucator = 2;
+	while (!gasit)
+	{
+		randomI = rand() % 4;
+		randomJ = rand() % 4;
+		if (!randomI) randomI++;
+		if (!randomJ) randomJ++;
+		if (tablaJoc[randomI][randomJ].Stiva.empty())
+		{
+			mutare.Jucator = 2;
+			int marime = gasirePiesaPotrivita();
+			if (marime == 1 || marime == 2) mutare.DimensiunePiesa = 1;
+			else if (marime == 3 || marime == 4) mutare.DimensiunePiesa = 2;
+			else if (marime == 5 || marime == 6) mutare.DimensiunePiesa = 3;
+			managerPiese[marime].peTabla = 1;
+			tablaJoc[randomI][randomJ].Stiva.push(mutare);
+			inlocuire(marime);
+			graficMutareCalculator(marime,randomI,randomJ);
+			gasit = 1;
+			return 1;
+		}
+		else if (tablaPlina())
+		{
+			bool gata = 0;
+			int rndI, rndJ;
+			while (!gata)
+			{
+				rndI = rand() % 4;
+				rndJ = rand() % 4;
+				if (!rndI) rndI++;
+				if (!rndJ) rndJ++;
+				int marime = gasirePiesaPotrivita();
+				if (marime == 1 || marime == 2) mutare.DimensiunePiesa = 1;
+				else if (marime == 3 || marime == 4) mutare.DimensiunePiesa = 2;
+				else if (marime == 5 || marime == 6) mutare.DimensiunePiesa = 3;
+
+				if (tablaJoc[rndI][rndJ].Stiva.top().DimensiunePiesa < mutare.DimensiunePiesa && managerPiese[marime].disponibil)
+				{
+                        if(!tablaJoc[managerPiese[marime].x][managerPiese[marime].y].Stiva.empty()) tablaJoc[managerPiese[marime].x][managerPiese[marime].y].Stiva.pop();
+                        managerPiese[marime].peTabla = 1;
+                        tablaJoc[rndI][rndJ].Stiva.push(mutare);
+                        inlocuire(marime);
+                        graficMutareCalculator(marime,randomI,randomJ);
+                        gata = 1;
+                        return 1;
+                    }
+			}
+		}
+	}
+	return 0;
+}
+void initpiesemanager()
+{
+    for(int i=1;i<=6;i++)
+    {
+        managerPiese[i].disponibil=1;
+        managerPiese[i].peTabla=0;
+    }
+}
 void afiseazaMatrice() {
 	for (int i = 1; i < 4; i++) {
 		for (int j = 1; j < 4; j++) {
@@ -1167,6 +1242,7 @@ void joaca(int gamemode)
     j2.punctaj='0';
     do
     {
+    initpiesemanager();
     start=time(&start);
     strcpy(v,"00:00");
     golirestiva();
@@ -1352,24 +1428,46 @@ void joaca(int gamemode)
             randJucator = 1;
         }
         else
-            if(gamemode == CALCULATOR_STRATEGIE)
+            if(gamemode == CALCULATOR_STRATEGIE && endGame == false)
             {
                 mutareComputer();
+                creeazatabla();
                 if (verificareSfarsitJoc() == 1)
-        {
-            endGame = true;
-            j1.punctaj++;
-            textcastigator();
-            delay(2000);
-        }
+                {
+                    endGame = true;
+                    j1.punctaj++;
+                    textcastigator();
+                    delay(2000);
+                }
         else if (verificareSfarsitJoc() == 2)
-        {
-            j2.punctaj++;
-            endGame = true;
-            textcastigator();
-            delay(2000);
-        }
+            {
+                    j2.punctaj++;
+                    endGame = true;
+                    textcastigator();
+                    delay(2000);
             }
+
+            }
+            else
+                if(gamemode == CALCULATOR_ALEATORIU && endGame == false)
+                {
+                    mutareComputerAleatoriu();
+                    creeazatabla();
+                if (verificareSfarsitJoc() == 1)
+                {
+                    endGame = true;
+                    j1.punctaj++;
+                    textcastigator();
+                    delay(2000);
+                }
+            else if (verificareSfarsitJoc() == 2)
+            {
+                    j2.punctaj++;
+                    endGame = true;
+                    textcastigator();
+                    delay(2000);
+                }
+                }
         }
     afiseazaMatrice();
     }
@@ -1381,7 +1479,8 @@ int main()
     initwindow(1366,764);
     latime=getmaxx();
     inaltime=getmaxy();
-    joaca(2);
+    joaca(3);
     getch();
     closegraph();
 }
+
