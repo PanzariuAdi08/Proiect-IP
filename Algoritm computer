@@ -1,0 +1,240 @@
+struct Punct {
+	int x, y;
+};
+
+Punct a11, a12, a13, a21, a22, a23, a31, a32, a33;
+
+
+
+struct evidentaPiese {
+	int x, y;
+	bool disponibil = 1;
+	bool peTabla = 0;
+}managerPiese[7] , managerPiesePlayer[7];
+
+
+int gasirePiesaPotrivita() 
+{
+	for (int i = 6; i > 0; i--)
+	{
+		if (managerPiese[i].disponibil) return i;
+	}
+	return 0;
+}
+
+int defensiva(Punct a , Punct b , Punct c)
+{
+	bool gasit = 0;
+	int i;
+	mutare.Jucator = 2;
+
+	if (!tablaJoc[a.x][a.y].Stiva.empty() && !tablaJoc[b.x][b.y].Stiva.empty() && tablaJoc[a.x][a.y].Stiva.top().Jucator == 1 && tablaJoc[b.x][b.y].Stiva.top().Jucator == 1)
+	{
+		if (tablaJoc[c.x][c.y].Stiva.empty()) //In caz ca locul e gol ,computerul pune prima piesa disponibila
+		{
+			for (i = 1; i < 7 && !gasit; i++)
+			{
+				if (managerPiese[i].disponibil) 
+				{
+					if(!tablaJoc[managerPiese[i].x][managerPiese[i].y].Stiva.empty()) tablaJoc[managerPiese[i].x][managerPiese[i].y].Stiva.pop();
+					managerPiese[i].x = c.x;
+					managerPiese[i].y = c.y;
+					gasit = 1;
+				}
+			}
+			
+
+			if (i == 1 || i == 2) mutare.DimensiunePiesa = 1;
+			else if (i == 3 || i == 4) mutare.DimensiunePiesa = 2;
+			else if (i == 5 || i == 6) mutare.DimensiunePiesa = 3;
+
+			tablaJoc[c.x][c.y].Stiva.push(mutare);
+		}
+		else //Pune cea mai mare piesa disponibila
+		{
+			int pozitiePiesaMaxima = gasirePiesaPotrivita();
+			
+			if (pozitiePiesaMaxima == 5 || pozitiePiesaMaxima == 6)	mutare.DimensiunePiesa = 3;
+			else if(pozitiePiesaMaxima == 3 || pozitiePiesaMaxima == 4)	mutare.DimensiunePiesa = 2;
+			else if (pozitiePiesaMaxima == 1 || pozitiePiesaMaxima == 2)	mutare.DimensiunePiesa = 1;
+			
+			if (!tablaJoc[managerPiese[pozitiePiesaMaxima].x][managerPiese[pozitiePiesaMaxima].y].Stiva.empty()) tablaJoc[managerPiese[pozitiePiesaMaxima].x][managerPiese[pozitiePiesaMaxima].y].Stiva.pop();
+			
+			managerPiese[pozitiePiesaMaxima].x = c.x;
+			managerPiese[pozitiePiesaMaxima].y = c.y;
+			tablaJoc[c.x][c.y].Stiva.push(mutare);
+			
+		}
+		return 1;
+	}
+	return 0;
+}
+
+int mutareComputer()
+{
+	a11.x = 1; a11.y = 1;
+	a12.x = 1; a12.y = 2;
+	a13.x = 1; a13.y = 3;
+	a21.x = 2; a21.y = 2;
+	a22.x = 2; a22.y = 2;
+	a23.x = 2; a23.y = 3;
+	a31.x = 3; a31.y = 1;
+	a32.x = 3; a32.y = 2;
+	a33.x = 3; a33.y = 3;
+
+	//Prima linie
+	if (defensiva(a11, a12, a13)) return 1;
+	if (defensiva(a11, a13, a12)) return 1;
+	if (defensiva(a12, a13, a11)) return 1;
+
+	//A doua linie
+	if (defensiva(a21, a22, a23)) return 1;
+	if (defensiva(a21, a23, a22)) return 1;
+	if (defensiva(a22, a23, a21)) return 1;
+
+	//A treia linie
+	if (defensiva(a31, a32, a33)) return 1;
+	if (defensiva(a31, a33, a32)) return 1;
+	if (defensiva(a32, a33, a31)) return 1;
+
+	//Prima coloana
+	if (defensiva(a11, a21, a31)) return 1;
+	if (defensiva(a11, a31, a21)) return 1;
+	if (defensiva(a21, a31, a11)) return 1;
+
+	//A doua coloana
+	if (defensiva(a12, a22, a32)) return 1;
+	if (defensiva(a12, a32, a22)) return 1;
+	if (defensiva(a22, a32, a12)) return 1;
+
+	//A treia coloana
+	if (defensiva(a13, a23, a33)) return 1;
+	if (defensiva(a13, a33, a23)) return 1;
+	if (defensiva(a23, a33, a13)) return 1;
+
+	//Diagonala principala
+	if (defensiva(a11, a22, a33)) return 1;
+	if (defensiva(a11, a33, a22)) return 1;
+	if (defensiva(a22, a33, a11)) return 1;
+
+	//Diagonala secundara
+	if (defensiva(a13, a22, a31)) return 1;
+	if (defensiva(a22, a31, a13)) return 1;
+	if (defensiva(a13, a31, a22)) return 1;
+
+	int contor = 0;
+	do 
+	{
+		contor++;
+		
+	} while (!managerPiese[contor].disponibil && contor < 6);
+
+	mutare.Jucator = 2;
+	mutare.DimensiunePiesa = contor;
+
+	
+	if (tablaJoc[2][2].Stiva.empty())
+	{
+		tablaJoc[2][2].Stiva.push(mutare);
+		managerPiese[contor].x = 2;
+		managerPiese[contor].y = 2;
+		return 1;
+	}
+	
+	if (tablaJoc[1][1].Stiva.empty()) {
+		tablaJoc[1][1].Stiva.push(mutare);
+		managerPiese[contor].x = 1;
+		managerPiese[contor].y = 1;
+		return 1;
+	}
+	
+	if (tablaJoc[1][3].Stiva.empty()) {
+		tablaJoc[1][3].Stiva.push(mutare);
+		managerPiese[contor].x = 1;
+		managerPiese[contor].y = 3;
+		return 1;
+	}
+		
+	if (tablaJoc[3][1].Stiva.empty()) {
+		tablaJoc[3][1].Stiva.push(mutare);
+		managerPiese[contor].x = 3;
+		managerPiese[contor].y = 1;
+		return 1;
+	}
+
+	if (tablaJoc[3][3].Stiva.empty()) {
+		tablaJoc[3][3].Stiva.push(mutare);
+		managerPiese[contor].x = 3;
+		managerPiese[contor].y = 3;
+		return 1;
+	}
+
+	if (tablaJoc[2][2].Stiva.empty()) {
+		tablaJoc[2][2].Stiva.push(mutare);
+		managerPiese[contor].x = 2;
+		managerPiese[contor].y = 2;
+		return 1;
+	}
+
+	for (int i = 1; i <= 3; i++)
+	{
+		for (int j = 1; j <= 3; j++)
+		{
+			cout << "PULA PIZDA COAIELE";
+			if (tablaJoc[i][j].Stiva.empty())
+			{
+				mutare.Jucator = 2;
+				int c = gasirePiesaPotrivita();
+				managerPiese[c].x = i;
+				managerPiese[c].y = j;
+				if (c == 1 || c == 2) mutare.DimensiunePiesa = 1;
+				else if (c == 3 || c == 4) mutare.DimensiunePiesa = 2;
+				else if (c == 5 || c == 6) mutare.DimensiunePiesa = 3;
+				tablaJoc[i][j].Stiva.push(mutare);
+				
+				return 1;
+			}
+		}
+	}
+	
+}
+
+void evidentaMutariPlayer(int x , int y , int marimePiesa)
+{
+	if (marimePiesa == 1)
+	{
+		if (managerPiesePlayer[1].peTabla == 0)
+		{
+			managerPiesePlayer[1].peTabla = 1;
+		}
+		else if (managerPiesePlayer[2].peTabla == 0)
+		{
+			managerPiesePlayer[2].peTabla = 1;
+		}
+	}
+
+	if (marimePiesa == 2)
+	{
+		if (managerPiesePlayer[3].peTabla == 0)
+		{
+			managerPiesePlayer[3].peTabla = 1;
+		}
+		else if (managerPiesePlayer[4].peTabla == 0)
+		{
+			managerPiesePlayer[4].peTabla = 1;
+		}
+	}
+
+	if (marimePiesa == 3)
+	{
+		if (managerPiesePlayer[5].peTabla == 0)
+		{
+			managerPiesePlayer[5].peTabla = 1;
+		}
+		else if (managerPiesePlayer[6].peTabla == 0)
+		{
+			managerPiesePlayer[6].peTabla = 1;
+		}
+	}
+}
+
