@@ -1,0 +1,805 @@
+#include <iostream>
+#include <stack>
+#include <winbgim.h>
+#include <graphics.h>
+using namespace std;
+#define MARE 0.09
+#define MIJLOCIE 0.07
+#define MIC 0.05
+#define J1 RED
+#define J2 BLUE
+#define SELECTAT 1
+#define NESELECTAT 0
+#define MARGINE 1
+#define TABLA 2
+#define INVALID 3
+bool endGame = false;
+int x, y, marimePiesa, randJucator, option;
+int latime,inaltime;
+
+typedef struct limite
+{
+    int x1,x2,y1,y2;
+} LIMITE;
+LIMITE tabla1[4][4];
+typedef struct jucator
+{
+    int stare[6],pozitie[6],selectat=-1;
+    char punctaj;
+    LIMITE lpiese[6];
+} JUCATOR;
+JUCATOR j1,j2;
+int piesa(int x, int y, float marime,int juc, int stare)
+{
+    if(stare==NESELECTAT)
+    {
+        setcolor(juc);
+        setlinestyle(SOLID_LINE,1,THICK_WIDTH);
+        circle(x,y,inaltime*marime);
+        setfillstyle(SOLID_FILL,juc);
+        fillellipse(x,y,getmaxy()*marime,getmaxy()*marime);
+        setlinestyle(SOLID_LINE,1,NORM_WIDTH);
+
+    }
+    else if(stare=SELECTAT)
+    {
+        setcolor(YELLOW);
+        setlinestyle(SOLID_LINE,1,THICK_WIDTH);
+        circle(x,y,getmaxy()*marime);
+        setfillstyle(SOLID_FILL,juc);
+        fillellipse(x,y,getmaxy()*marime,getmaxy()*marime);
+        setlinestyle(SOLID_LINE,1,NORM_WIDTH);
+    }
+}
+void rama()
+{
+    setcolor(WHITE);
+    line(0.2*latime,0,0.2*latime,inaltime);
+    line(0.8*latime,0,0.8*latime,inaltime);
+    line(0,0.15*inaltime,latime,0.15*inaltime);
+}
+void liniiajutatoare()
+{
+    setcolor(WHITE);
+    line(0,0.36*inaltime,0.2*latime,0.36*inaltime);
+    line(0,0.57*inaltime,0.2*latime,0.57*inaltime);
+    line(0,0.79*inaltime,0.2*latime,0.79*inaltime);
+    line(0.8*latime,0.36*inaltime,latime,0.36*inaltime);
+    line(0.8*latime,0.57*inaltime,latime,0.57*inaltime);
+    line(0.8*latime,0.79*inaltime,latime,0.79*inaltime);
+}
+void tablajoc()
+{
+    setcolor(WHITE);
+    line(latime*0.254,inaltime*0.43,latime*0.254+inaltime*0.85,inaltime*0.43);
+    line(latime*0.254,inaltime*0.71,latime*0.254+inaltime*0.85,inaltime*0.71);
+    line(latime*0.254,inaltime*0.15,latime*0.254,inaltime);
+    line(latime*0.254+inaltime*0.28,inaltime*0.15,latime*0.254+inaltime*0.28,inaltime);
+    line(latime*0.254+2*inaltime*0.28,inaltime*0.15,latime*0.254+2*inaltime*0.28,inaltime);
+    line(latime*0.254+3*inaltime*0.28+8,inaltime*0.15,latime*0.254+3*inaltime*0.28+8,inaltime);
+
+}
+void textjucatori()
+{
+    setcolor(WHITE);
+    settextjustify(CENTER_TEXT,CENTER_TEXT);
+    settextstyle(SANS_SERIF_FONT,HORIZ_DIR,1);
+    outtextxy(latime*0.1,inaltime*0.07,"JUCATOR1");
+    setcolor(WHITE);
+    settextjustify(CENTER_TEXT,CENTER_TEXT);
+    settextstyle(SANS_SERIF_FONT,HORIZ_DIR,1);
+    outtextxy(latime*0.9,inaltime*0.07,"JUCATOR2");
+    if(endGame==FALSE)
+        if(randJucator==1)
+        {
+            setcolor(WHITE);
+            settextjustify(CENTER_TEXT,CENTER_TEXT);
+            settextstyle(SANS_SERIF_FONT,HORIZ_DIR,3);
+            outtextxy(latime*0.5,inaltime*0.07,"RAND JUCATOR: 1");
+        }
+        else
+        {
+            setcolor(WHITE);
+            settextjustify(CENTER_TEXT,CENTER_TEXT);
+            settextstyle(SANS_SERIF_FONT,HORIZ_DIR,3);
+            outtextxy(latime*0.5,inaltime*0.07,"RAND JUCATOR: 2");
+        }
+
+
+}
+void textalegetipiesa()
+{
+        setcolor(WHITE);
+        settextjustify(CENTER_TEXT,CENTER_TEXT);
+        settextstyle(SANS_SERIF_FONT,HORIZ_DIR,1);
+        outtextxy(latime*0.5,inaltime*0.10,"                ALEGETI O PIESA                ");
+}
+void textmutare()
+{
+    setcolor(WHITE);
+    settextjustify(CENTER_TEXT,CENTER_TEXT);
+    settextstyle(SANS_SERIF_FONT,HORIZ_DIR,1);
+    outtextxy(latime*0.5,inaltime*0.1,"UNDE DORITI SA MUTATI PIESA?");
+}
+void textmutareinvalida()
+{
+    setcolor(WHITE);
+    settextjustify(CENTER_TEXT,CENTER_TEXT);
+    settextstyle(SANS_SERIF_FONT,HORIZ_DIR,1);
+    outtextxy(latime*0.5,inaltime*0.1,"               MUTARE INVALIDA                ");
+}
+
+void initlimite()
+{
+    tabla1[1][1].x1=latime*0.254;
+    tabla1[1][1].x2=latime*0.254+inaltime*0.28;
+    tabla1[1][1].y1=inaltime*0.15;
+    tabla1[1][1].y2=inaltime*0.43;
+    tabla1[1][2].x1=latime*0.254+inaltime*0.28;
+    tabla1[1][2].x2=latime*0.254+2*inaltime*0.28;
+    tabla1[1][2].y1=inaltime*0.15;
+    tabla1[1][2].y2=inaltime*0.43;
+    tabla1[1][3].x1=latime*0.254+2*inaltime*0.28;
+    tabla1[1][3].x2=latime*0.254+3*inaltime*0.28+inaltime*0.01;
+    tabla1[1][3].y1=inaltime*0.15;
+    tabla1[1][3].y2=inaltime*0.43;
+    tabla1[2][1].x1=latime*0.254;
+    tabla1[2][1].x2=latime*0.254+inaltime*0.28;
+    tabla1[2][1].y1=inaltime*0.43;
+    tabla1[2][1].y2=inaltime*0.71;
+    tabla1[2][2].x1=latime*0.254+inaltime*0.28;
+    tabla1[2][2].x2=latime*0.254+2*inaltime*0.28;
+    tabla1[2][2].y1=inaltime*0.43;
+    tabla1[2][2].y2=inaltime*0.71;
+    tabla1[2][3].x1=latime*0.254+2*inaltime*0.28;
+    tabla1[2][3].x2=latime*0.254+3*inaltime*0.28+inaltime*0.01;
+    tabla1[2][3].y1=inaltime*0.43;
+    tabla1[2][3].y2=inaltime*0.71;
+    tabla1[3][1].x1=latime*0.254;
+    tabla1[3][1].x2=latime*0.254+inaltime*0.28;
+    tabla1[3][1].y1=inaltime*0.71;
+    tabla1[3][1].y2=inaltime;
+    tabla1[3][2].x1=latime*0.254+inaltime*0.28;
+    tabla1[3][2].x2=latime*0.254+2*inaltime*0.28;
+    tabla1[3][2].y1=inaltime*0.71;
+    tabla1[3][2].y2=inaltime;
+    tabla1[3][3].x1=latime*0.254+2*inaltime*0.28;
+    tabla1[3][3].x2=latime*0.254+3*inaltime*0.28+inaltime*0.01;
+    tabla1[3][3].y2=latime*0.254+2*inaltime*0.28;
+    tabla1[3][3].y1=inaltime*0.71;
+    //
+    j1.lpiese[0].x1=0;
+    j1.lpiese[0].x2=latime*0.2;
+    j1.lpiese[0].y1=inaltime*0.15;
+    j1.lpiese[0].y2=inaltime*0.36;
+    j1.lpiese[1].x1=0;
+    j1.lpiese[1].x2=latime*0.2;
+    j1.lpiese[1].y1=inaltime*0.36;
+    j1.lpiese[1].y2=inaltime*0.57;
+    j1.lpiese[2].x1=0;
+    j1.lpiese[2].x2=latime*0.1;
+    j1.lpiese[2].y1=inaltime*0.57;
+    j1.lpiese[2].y2=inaltime*0.78;
+    j1.lpiese[3].x1=latime*0.1;
+    j1.lpiese[3].x2=latime*0.2;
+    j1.lpiese[3].y1=inaltime*0.57;
+    j1.lpiese[3].y2=inaltime*0.78;
+    j1.lpiese[4].x1=0;
+    j1.lpiese[4].x2=latime*0.1;
+    j1.lpiese[4].y1=inaltime*0.78;
+    j1.lpiese[4].y2=inaltime;
+    j1.lpiese[5].x1=latime*0.1;
+    j1.lpiese[5].x2=latime*0.2;
+    j1.lpiese[5].y1=inaltime*0.78;
+    j1.lpiese[5].y2=inaltime;
+    //
+    j2.lpiese[0].x1=latime*0.8;
+    j2.lpiese[0].x2=latime;
+    j2.lpiese[0].y1=inaltime*0.15;
+    j2.lpiese[0].y2=inaltime*0.36;
+    j2.lpiese[1].x1=latime*0.8;
+    j2.lpiese[1].x2=latime;
+    j2.lpiese[1].y1=inaltime*0.36;
+    j2.lpiese[1].y2=inaltime*0.57;
+    j2.lpiese[2].x1=latime*0.8;
+    j2.lpiese[2].x2=latime*0.9;
+    j2.lpiese[2].y1=inaltime*0.57;
+    j2.lpiese[2].y2=inaltime*0.78;
+    j2.lpiese[3].x1=latime*0.9;
+    j2.lpiese[3].x2=latime;
+    j2.lpiese[3].y1=inaltime*0.57;
+    j2.lpiese[3].y2=inaltime*0.78;
+    j2.lpiese[4].x1=latime*0.8;
+    j2.lpiese[4].x2=latime*0.9;
+    j2.lpiese[4].y1=inaltime*0.78;
+    j2.lpiese[4].y2=inaltime;
+    j2.lpiese[5].x1=latime*0.9;
+    j2.lpiese[5].x2=latime;
+    j2.lpiese[5].y1=inaltime*0.78;
+    j2.lpiese[5].y2=inaltime;
+}
+int cautare()
+{
+    int x,y,ok=1,i;
+    do
+    {
+        if(ismouseclick(WM_LBUTTONDOWN))
+        {
+            x=mousex();
+            y=mousey();
+            clearmouseclick(WM_LBUTTONDOWN);
+            if(randJucator==1)
+            {
+                if(x>j1.lpiese[j1.selectat].x1 && x<j1.lpiese[j1.selectat].x2 && y>j1.lpiese[j1.selectat].y1 && y<j1.lpiese[j1.selectat].y2)
+                    return -1;
+            }
+            else
+                if(x>j2.lpiese[j2.selectat].x1 && x<j2.lpiese[j2.selectat].x2 && y>j2.lpiese[j2.selectat].y1 && y<j2.lpiese[j2.selectat].y2)
+                    return -1;
+            if(y>tabla1[1][1].y1 && y<tabla1[1][1].y2)
+            {
+                if(x>tabla1[1][1].x1 && x<tabla1[1][1].x2)
+                    return 11;
+                if(x>tabla1[1][2].x1 && x<tabla1[1][2].x2)
+                    return 12;
+                if(x>tabla1[1][3].x1 && x<tabla1[1][3].x2)
+                    return 13;
+            }
+            if(y>tabla1[2][1].y1 && y<tabla1[2][1].y2)
+            {
+                if(x>tabla1[2][1].x1 && x<tabla1[2][1].x2)
+                    return 21;
+                if(x>tabla1[2][2].x1 && x<tabla1[2][2].x2)
+                    return 22;
+                if(x>tabla1[2][3].x1 && x<tabla1[2][3].x2)
+                    return 23;
+            }
+            if(y>tabla1[3][1].y1 && y<tabla1[3][1].y2)
+            {
+                if(x>tabla1[3][1].x1 && x<tabla1[3][1].x2)
+                    return 31;
+                if(x>tabla1[3][2].x1 && x<tabla1[3][2].x2)
+                    return 32;
+                if(x>tabla1[3][3].x1 && x<tabla1[3][3].x2)
+                    return 33;
+            }
+            return 0;
+        }
+    }
+    while(ok);
+}
+
+void creeazapiese()
+{
+    int i;
+    float marime;
+    for(i=5; i>=0; i--)
+    {
+        if(i<2)
+            marime=MARE;
+        else if(i<4)
+            marime=MIJLOCIE;
+        else
+            marime=MIC;
+        piesa(j1.lpiese[i].x1+(j1.lpiese[i].x2-j1.lpiese[i].x1)/2,j1.lpiese[i].y1+(j1.lpiese[i].y2-j1.lpiese[i].y1)/2,marime,J1,j1.stare[i]);
+        piesa(j2.lpiese[i].x1+(j2.lpiese[i].x2-j2.lpiese[i].x1)/2,j2.lpiese[i].y1+(j2.lpiese[i].y2-j2.lpiese[i].y1)/2,marime,J2,j2.stare[i]);
+    }
+
+}
+void selecteaza(int i)
+{
+    if(randJucator==1)
+    {
+        if(j1.selectat==-1)
+        {
+            j1.selectat=i;
+            j1.stare[j1.selectat]=SELECTAT;
+        }
+        else if(j1.selectat==i)
+        {
+            j1.selectat=-1;
+            j1.stare[i]=NESELECTAT;
+        }
+    }
+    else
+    {
+        if(j2.selectat==-1)
+        {
+            j2.selectat=i;
+            j2.stare[j2.selectat]=SELECTAT;
+        }
+        else if(j2.selectat==i)
+        {
+            j2.selectat=-1;
+            j2.stare[i]=NESELECTAT;
+        }
+    }
+    creeazapiese();
+}
+void textscor()
+{
+    char text[5];
+    text[0]=j1.punctaj;
+    text[1]='-';
+    text[2]=j2.punctaj;
+    text[3]='\0';
+    setcolor(WHITE);
+    settextjustify(CENTER_TEXT,CENTER_TEXT);
+    settextstyle(SANS_SERIF_FONT,HORIZ_DIR,1);
+    outtextxy(latime*0.5,inaltime*0.14,text);
+}
+void creeazatabla()
+{
+    cleardevice();
+    rama();
+    tablajoc();
+    liniiajutatoare();
+    textjucatori();
+    textscor();
+    creeazapiese();
+}
+int selecteazaoptiune()
+{
+    int x,y,i,j,r,ok=0;
+    do
+    {
+        if(ismouseclick(WM_LBUTTONDOWN))
+        {
+            x=mousex();
+            y=mousey();
+            clearmouseclick(WM_LBUTTONDOWN);
+            if(randJucator==1)
+            {
+                if(x<latime*0.2 && y>inaltime*0.15)
+                {
+                    ok=1;
+                    option=MARGINE;
+                    for(i=0; i<=5; i++)
+                        if(x>j1.lpiese[i].x1 && x<j1.lpiese[i].x2 && y>j1.lpiese[i].y1 && y<j1.lpiese[i].y2)
+                            if(i<=1)
+                                if(j1.pozitie[0]==0 || j1.pozitie[1]==0)
+                                {
+                                    marimePiesa=3;
+                                    selecteaza(i);
+                                }
+                                else
+                                    {
+                                    option=INVALID;
+                                    return 0;
+                                    }
+                            else if(i<=3)
+                                if(j1.pozitie[2]==0 || j1.pozitie[3]==0)
+                                {
+                                    marimePiesa=2;
+                                    selecteaza(i);
+                                }
+                                else
+                                    {
+                                    option=INVALID;
+                                    return 0;
+                                    }
+                            else if(j1.pozitie[4]==0 || j1.pozitie[5]==0)
+                            {
+                                marimePiesa=1;
+                                selecteaza(i);
+                            }
+                            else
+                                {
+                                    option=INVALID;
+                                    return 0;
+                                }
+
+                }
+                else if(x>latime*0.254 && x<latime*0.254+inaltime*0.85 && y>inaltime*0.15)
+                {
+                    option=TABLA;
+                    ok=1;
+                    for(i=1;i<=3;i++)
+                        for(j=1;j<=3;j++)
+                            if(x>tabla1[i][j].x1 && x<tabla1[i][j].x2 && y>tabla1[i][j].y1 && y<tabla1[i][j].y2)
+                            {
+                                for(r=0;r<=5;r++)
+                                    if(j1.pozitie[r]==i*10+j)
+                                    {
+                                        if(r<=1)
+                                        {
+                                        marimePiesa=MARE;
+                                        selecteaza(r);
+                                        }
+                                        else
+                                            if(r<=3)
+                                            {
+                                                marimePiesa=MIJLOCIE;
+                                                selecteaza(r);
+                                            }
+                                            else
+                                            {
+                                                marimePiesa=MIC;
+                                                selecteaza(r);
+                                            }
+                                        return i*10+j;
+                                    }
+                            }
+                }
+                else
+                {
+                    option=INVALID;
+                    return 0;
+                }
+            }
+            else
+            {
+                if(x>latime*0.8 && y>inaltime*0.15)
+                {
+                    ok=1;
+                    option=MARGINE;
+                    for(i=0; i<=5; i++)
+                        if(x>j2.lpiese[i].x1 && x<j2.lpiese[i].x2 && y>j2.lpiese[i].y1 && y<j2.lpiese[i].y2)
+                            if(i<=1)
+                                if(j2.pozitie[0]==0 || j2.pozitie[1]==0)
+                                {
+                                    marimePiesa=3;
+                                    selecteaza(i);
+                                }
+                                else
+                                {
+                                    option=INVALID;
+                                    return 0;
+                                }
+                            else if(i<=3)
+                                if(j2.pozitie[2]==0 || j2.pozitie[3]==0)
+                                {
+                                    marimePiesa=2;
+                                    selecteaza(i);
+                                }
+                                else
+                                {
+                                    option=INVALID;
+                                    return 0;
+                                }
+                            else if(j2.pozitie[4]==0 || j2.pozitie[5]==0)
+                            {
+                                marimePiesa=1;
+                                selecteaza(i);
+                            }
+                            else
+                            {
+                                option=INVALID;
+                                return 0;
+                            }
+
+                }
+                else if(x>latime*0.254 && x<latime*0.254+inaltime*0.85 && y>inaltime*0.15)
+                {
+                    option=TABLA;
+                    ok=1;
+                    for(i=1;i<=3;i++)
+                        for(j=1;j<=3;j++)
+                            if(x>tabla1[i][j].x1 && x<tabla1[i][j].x2 && y>tabla1[i][j].y1 && y<tabla1[i][j].y2)
+                             for(r=0;r<=5;r++)
+                                    if(j2.pozitie[r]==i*10+j)
+                                    {
+                                        if(r<=1)
+                                        {
+                                        marimePiesa=MARE;
+                                        selecteaza(r);
+                                        }
+                                        else
+                                            if(r<=3)
+                                            {
+                                                marimePiesa=MIJLOCIE;
+                                                selecteaza(r);
+                                            }
+                                            else
+                                            {
+                                                marimePiesa=MIC;
+                                                selecteaza(r);
+                                            }
+                                        return i*10+j;
+                                    }
+                }
+                else
+                {
+                    option=INVALID;
+                    return 0;
+                }
+            }
+        }
+    }
+    while(ok==0);
+        return 0;
+}
+void mutapiesamargine()
+{
+    if(randJucator==1)
+    {
+        j1.lpiese[j1.selectat].x1=tabla1[x][y].x1;
+        j1.lpiese[j1.selectat].x2=tabla1[x][y].x2;
+        j1.lpiese[j1.selectat].y1=tabla1[x][y].y1;
+        j1.lpiese[j1.selectat].y2=tabla1[x][y].y2;
+        j1.pozitie[j1.selectat]=x*10+y;
+        selecteaza(j1.selectat);
+    }
+    else
+    {
+        j2.lpiese[j2.selectat].x1=tabla1[x][y].x1;
+        j2.lpiese[j2.selectat].x2=tabla1[x][y].x2;
+        j2.lpiese[j2.selectat].y1=tabla1[x][y].y1;
+        j2.lpiese[j2.selectat].y2=tabla1[x][y].y2;
+        j2.pozitie[j2.selectat]=x*10+y;
+        selecteaza(j2.selectat);
+    }
+}
+struct Piesa
+{
+    int DimensiunePiesa;
+    int Jucator;
+} mutare;
+
+struct TablaJoc
+{
+    stack<Piesa> Stiva;
+
+} tablaJoc[4][4];
+
+bool tablaPlina()
+{
+    for (int i = 1; i < 4; i++)
+    {
+        for (int j = 1; j < 4; j++)
+        {
+            if (tablaJoc[i][j].Stiva.empty())
+                return 0;
+        }
+    }
+    return 1;
+}
+
+int verificareSfarsitJoc()
+{
+    if (!tablaJoc[1][1].Stiva.empty() && !tablaJoc[2][2].Stiva.empty() && !tablaJoc[3][3].Stiva.empty() && (tablaJoc[1][1].Stiva.top().Jucator == tablaJoc[2][2].Stiva.top().Jucator) && (tablaJoc[1][1].Stiva.top().Jucator == tablaJoc[3][3].Stiva.top().Jucator))
+        return tablaJoc[1][1].Stiva.top().Jucator;
+    if (!tablaJoc[1][3].Stiva.empty() && !tablaJoc[2][2].Stiva.empty() && !tablaJoc[3][1].Stiva.empty() && (tablaJoc[1][3].Stiva.top().Jucator == tablaJoc[2][2].Stiva.top().Jucator) && (tablaJoc[1][3].Stiva.top().Jucator == tablaJoc[3][1].Stiva.top().Jucator))
+        return tablaJoc[1][3].Stiva.top().Jucator;
+    if (!tablaJoc[1][1].Stiva.empty() && !tablaJoc[1][2].Stiva.empty() && !tablaJoc[1][3].Stiva.empty() && (tablaJoc[1][1].Stiva.top().Jucator == tablaJoc[1][2].Stiva.top().Jucator) && (tablaJoc[1][1].Stiva.top().Jucator == tablaJoc[1][3].Stiva.top().Jucator))
+        return tablaJoc[1][1].Stiva.top().Jucator;
+    if (!tablaJoc[2][1].Stiva.empty() && !tablaJoc[2][2].Stiva.empty() && !tablaJoc[2][3].Stiva.empty() && (tablaJoc[2][1].Stiva.top().Jucator == tablaJoc[2][2].Stiva.top().Jucator) && (tablaJoc[2][1].Stiva.top().Jucator == tablaJoc[2][3].Stiva.top().Jucator))
+        return tablaJoc[2][1].Stiva.top().Jucator;
+    if (!tablaJoc[3][1].Stiva.empty() && !tablaJoc[3][2].Stiva.empty() && !tablaJoc[3][3].Stiva.empty() && (tablaJoc[3][1].Stiva.top().Jucator == tablaJoc[3][2].Stiva.top().Jucator) && (tablaJoc[3][1].Stiva.top().Jucator == tablaJoc[3][3].Stiva.top().Jucator))
+        return tablaJoc[3][1].Stiva.top().Jucator;
+    if (!tablaJoc[1][1].Stiva.empty() && !tablaJoc[2][1].Stiva.empty() && !tablaJoc[3][1].Stiva.empty() && (tablaJoc[1][1].Stiva.top().Jucator == tablaJoc[2][1].Stiva.top().Jucator) && (tablaJoc[1][1].Stiva.top().Jucator == tablaJoc[3][1].Stiva.top().Jucator))
+        return tablaJoc[1][1].Stiva.top().Jucator;
+    if (!tablaJoc[1][2].Stiva.empty() && !tablaJoc[2][2].Stiva.empty() && !tablaJoc[3][2].Stiva.empty() && (tablaJoc[1][2].Stiva.top().Jucator == tablaJoc[2][2].Stiva.top().Jucator) && (tablaJoc[1][2].Stiva.top().Jucator == tablaJoc[3][2].Stiva.top().Jucator))
+        return tablaJoc[1][2].Stiva.top().Jucator;
+    if (!tablaJoc[1][3].Stiva.empty() && !tablaJoc[2][3].Stiva.empty() && !tablaJoc[3][3].Stiva.empty() && (tablaJoc[1][3].Stiva.top().Jucator == tablaJoc[2][3].Stiva.top().Jucator) && (tablaJoc[1][3].Stiva.top().Jucator == tablaJoc[3][3].Stiva.top().Jucator))
+        return tablaJoc[1][3].Stiva.top().Jucator;
+    return 0;
+}
+void textcastigator()
+{
+    if(verificareSfarsitJoc()==1)
+    {
+        setcolor(WHITE);
+        settextjustify(CENTER_TEXT,CENTER_TEXT);
+        settextstyle(SANS_SERIF_FONT,HORIZ_DIR,5);
+        outtextxy(latime*0.5,inaltime*0.07,"JUCATORUL 1 A CASTIGAT");
+    }
+    else
+    {
+        setcolor(WHITE);
+        settextjustify(CENTER_TEXT,CENTER_TEXT);
+        settextstyle(SANS_SERIF_FONT,HORIZ_DIR,5);
+        outtextxy(latime*0.5,inaltime*0.07,"JUCATORUL 2 A CASTIGAT");
+    }
+}
+
+void selecteazaPiesaTabla(int i, int j)
+{
+
+    if (!tablaJoc[i][j].Stiva.empty() && tablaJoc[i][j].Stiva.top().Jucator == randJucator)
+    {
+        mutare.DimensiunePiesa = tablaJoc[i][j].Stiva.top().DimensiunePiesa;
+        mutare.Jucator = randJucator;
+        tablaJoc[i][j].Stiva.pop();
+    }
+    cout << endl;
+}
+
+
+void golirestiva()
+{
+    int i,j;
+    for(i=1;i<=3;i++)
+        for(j=1;j<=3;j++)
+            while(!tablaJoc[i][j].Stiva.empty())
+                tablaJoc[i][j].Stiva.pop();
+    for(i=0;i<=5;i++)
+    {
+        j1.pozitie[i]=0;
+        j2.pozitie[i]=0;
+    }
+}
+void afiseazaMatrice() {
+	for (int i = 1; i < 4; i++) {
+		for (int j = 1; j < 4; j++) {
+			if (tablaJoc[i][j].Stiva.empty()) cout << 0 << " ";
+			else cout << tablaJoc[i][j].Stiva.top().Jucator << " ";
+		}
+		cout << endl;
+	}
+}
+void joaca()
+{
+
+    int ok,m,n,i;
+    j1.punctaj='0';
+    j2.punctaj='0';
+    do
+    {
+    golirestiva();
+    initlimite();
+    endGame=false;
+    randJucator = 1;
+    creeazatabla();
+    while (!endGame)
+    {
+        textjucatori();
+        m=-1;
+        n=-1;
+        option=INVALID;
+        marimePiesa=-1;
+        textalegetipiesa();
+        cout<<randJucator<<endl<<"selectati optiune"<<endl;
+        x=selecteazaoptiune();
+        cout<<option<<endl;
+        if (option == MARGINE)
+        {
+            cout<<"unde doriti sa mutati piesa?";
+            do
+            {
+                textmutare();
+                x=cautare();
+                if(x!=-1)
+                    if(x==0)
+                    {
+                        textmutareinvalida();
+                        delay(2000);
+                    }
+                    else
+                    {
+                        y=x%10;
+                        x=x/10;
+                    }
+            }
+            while(x==0);
+            if(x==-1)
+            {
+                if(randJucator==1)
+                {
+                    option=INVALID;
+                    selecteaza(j1.selectat);
+                }
+                else
+                {
+                    option=INVALID;
+                    selecteaza(j2.selectat);
+                }
+            }
+            cout<<x<<' '<<y<<endl;
+            mutare.Jucator = randJucator;
+            mutare.DimensiunePiesa = marimePiesa;
+        }
+        else
+        if(option == TABLA)
+        {
+            y=x%10;
+            x=x/10;
+            cout<<x<<' '<<y<<endl;
+            if (!tablaJoc[x][y].Stiva.empty() && tablaJoc[x][y].Stiva.top().Jucator == randJucator)
+			{
+				mutare.DimensiunePiesa = tablaJoc[x][y].Stiva.top().DimensiunePiesa;
+				mutare.Jucator = randJucator;
+				m=x;
+				n=y;
+            cout<<"unde doriti sa mutati piesa?";
+			do
+            {
+                textmutare();
+                x=cautare();
+                if(x!=-1)
+                    if(x==0)
+                    {
+                    creeazatabla();
+                    textmutareinvalida();
+                    delay(2000);
+                    }
+                    else
+                    {
+                    y=x%10;
+                    x=x/10;
+                    }
+            }
+            while(x==0);
+            if(x==-1)
+            {
+                if(randJucator==1)
+                {
+                    option=INVALID;
+                    selecteaza(j1.selectat);
+                }
+                else
+                {
+                    option=INVALID;
+                    selecteaza(j2.selectat);
+                }
+            }
+            if(option!=INVALID)
+                tablaJoc[m][n].Stiva.pop();
+            cout<<x<<' '<<y<<endl;
+			}
+            else
+                option=INVALID;
+
+        }
+        if(option==INVALID)
+            cout<<"optiune invalida"<<endl;
+        if(option!=INVALID)
+        {
+        ok=0;
+        do
+        {
+            if (tablaJoc[x][y].Stiva.empty())
+            {
+                tablaJoc[x][y].Stiva.push(mutare);
+                ok=1;
+            }
+            else if (tablaJoc[x][y].Stiva.size() < 3 && tablaJoc[x][y].Stiva.top().DimensiunePiesa < mutare.DimensiunePiesa)
+            {
+                tablaJoc[x][y].Stiva.push(mutare);
+                ok=1;
+            }
+            else
+            {
+                x=cautare();
+                y=x%10;
+                x=x/10;
+                clearmouseclick(WM_LBUTTONDOWN);
+            }
+        }
+        while(ok==0);
+        mutapiesamargine();
+        creeazatabla();
+        if (verificareSfarsitJoc() == 1)
+        {
+            endGame = true;
+            j1.punctaj++;
+            textcastigator();
+            delay(2000);
+        }
+        else if (verificareSfarsitJoc() == 2)
+        {
+            j2.punctaj++;
+            endGame = true;
+            textcastigator();
+            delay(2000);
+        }
+        if (randJucator == 1)
+            randJucator = 2;
+        else if(randJucator == 2)
+            randJucator = 1;
+        clearmouseclick(WM_LBUTTONDOWN);
+        }
+    afiseazaMatrice();
+    }
+    }
+    while(1);
+}
+int main()
+{
+    initwindow(1366,764);
+    latime=getmaxx();
+    inaltime=getmaxy();
+    joaca();
+    getch();
+    closegraph();
+}
