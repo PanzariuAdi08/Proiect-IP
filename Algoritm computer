@@ -1,3 +1,21 @@
+#include <iostream>
+#include <stack>
+#include <stdlib.h>
+using namespace std;
+
+bool endGame = false;
+int x, y, marimePiesa, randJucator, option;
+
+struct Piesa {
+	int DimensiunePiesa;
+	int Jucator;
+}mutare;
+
+struct TablaJoc {
+	stack<Piesa> Stiva;
+
+}tablaJoc[4][4];
+
 struct Punct {
 	int x, y;
 };
@@ -12,13 +30,67 @@ struct evidentaPiese {
 	bool peTabla = 0;
 }managerPiese[7] , managerPiesePlayer[7];
 
+bool tablaPlina()
+{
+	for (int i = 1; i < 4; i++)
+	{
+		for (int j = 1; j < 4; j++)
+		{
+			if (tablaJoc[i][j].Stiva.empty()) return 0;
+		}
+	}
+	return 1;
+}
+
+int verificareSfarsitJoc(int i, int j) {
+	if (!tablaJoc[1][j].Stiva.empty() && !tablaJoc[2][j].Stiva.empty() && !tablaJoc[3][j].Stiva.empty() && tablaJoc[1][j].Stiva.top().Jucator == tablaJoc[2][j].Stiva.top().Jucator && tablaJoc[2][j].Stiva.top().Jucator == tablaJoc[3][j].Stiva.top().Jucator) return tablaJoc[i][j].Stiva.top().Jucator;
+	if (!tablaJoc[i][1].Stiva.empty() && !tablaJoc[i][2].Stiva.empty() && !tablaJoc[i][3].Stiva.empty() && tablaJoc[i][1].Stiva.top().Jucator == tablaJoc[i][2].Stiva.top().Jucator && tablaJoc[i][2].Stiva.top().Jucator == tablaJoc[i][3].Stiva.top().Jucator) return tablaJoc[i][j].Stiva.top().Jucator;
+	if (!tablaJoc[1][1].Stiva.empty() && !tablaJoc[2][2].Stiva.empty() && !tablaJoc[3][3].Stiva.empty() && tablaJoc[1][1].Stiva.top().Jucator == tablaJoc[2][2].Stiva.top().Jucator && tablaJoc[2][2].Stiva.top().Jucator == tablaJoc[3][3].Stiva.top().Jucator) return tablaJoc[i][j].Stiva.top().Jucator;
+	if (!tablaJoc[1][3].Stiva.empty() && !tablaJoc[2][2].Stiva.empty() && !tablaJoc[3][1].Stiva.empty() && tablaJoc[1][3].Stiva.top().Jucator == tablaJoc[2][2].Stiva.top().Jucator && tablaJoc[2][2].Stiva.top().Jucator == tablaJoc[3][1].Stiva.top().Jucator) return tablaJoc[i][j].Stiva.top().Jucator;
+	return 0;
+}
+
+void selecteazaPiesaTabla(int i, int j) {
+
+	if (!tablaJoc[i][j].Stiva.empty() && tablaJoc[i][j].Stiva.top().Jucator == randJucator)
+	{
+		mutare.DimensiunePiesa = tablaJoc[i][j].Stiva.top().DimensiunePiesa;
+		mutare.Jucator = randJucator;
+		tablaJoc[i][j].Stiva.pop();
+	}
+	cout << endl;
+}
+
+void selecteazaPiesaLangaTabla(int i, int j)
+{
+	cout << "Marimea piesei : "; cin >> marimePiesa;
+	mutare.Jucator = randJucator;
+	mutare.DimensiunePiesa = marimePiesa;
+	cout << endl;
+}
+
+void afiseazaMatrice() {
+	for (int i = 1; i < 4; i++) {
+		for (int j = 1; j < 4; j++) {
+			if (tablaJoc[i][j].Stiva.empty()) cout << 0 << " ";
+			else cout << tablaJoc[i][j].Stiva.top().Jucator << " ";
+		}
+		cout << endl;
+	}
+}
 
 int gasirePiesaPotrivita() 
 {
-	for (int i = 6; i > 0; i--)
+	for (int i = 1; i < 6; i++)
+	{
+		if (!managerPiese[i].peTabla) return i;
+	}
+
+	for (int i = 6; i > 1; i--)
 	{
 		if (managerPiese[i].disponibil) return i;
 	}
+
 	return 0;
 }
 
@@ -32,25 +104,22 @@ int defensiva(Punct a , Punct b , Punct c)
 	{
 		if (tablaJoc[c.x][c.y].Stiva.empty()) //In caz ca locul e gol ,computerul pune prima piesa disponibila
 		{
-			for (i = 1; i < 7 && !gasit; i++)
-			{
-				if (managerPiese[i].disponibil) 
-				{
-					if(!tablaJoc[managerPiese[i].x][managerPiese[i].y].Stiva.empty()) tablaJoc[managerPiese[i].x][managerPiese[i].y].Stiva.pop();
-					managerPiese[i].x = c.x;
-					managerPiese[i].y = c.y;
-					gasit = 1;
-				}
-			}
 			
+			i = gasirePiesaPotrivita();
+
+			managerPiese[i].x = c.x;
+			managerPiese[i].y = c.y;
+			managerPiese[i].peTabla = 1;
 
 			if (i == 1 || i == 2) mutare.DimensiunePiesa = 1;
 			else if (i == 3 || i == 4) mutare.DimensiunePiesa = 2;
 			else if (i == 5 || i == 6) mutare.DimensiunePiesa = 3;
 
 			tablaJoc[c.x][c.y].Stiva.push(mutare);
+			cout << "Pus din defensiva .1" << endl;
+			return 1;
 		}
-		else //Pune cea mai mare piesa disponibila
+		else if(tablaPlina()) //Pune cea mai mare piesa disponibila
 		{
 			int pozitiePiesaMaxima = gasirePiesaPotrivita();
 			
@@ -62,10 +131,62 @@ int defensiva(Punct a , Punct b , Punct c)
 			
 			managerPiese[pozitiePiesaMaxima].x = c.x;
 			managerPiese[pozitiePiesaMaxima].y = c.y;
+			managerPiese[pozitiePiesaMaxima].peTabla = 1;
+			mutare.Jucator = 2;
 			tablaJoc[c.x][c.y].Stiva.push(mutare);
-			
+			cout << "Pus din defensiva .2  coords  " << c.x << " " << c.y << endl;
+			return 1;
 		}
-		return 1;
+		
+	}
+	return 0;
+}
+
+int ataca(Punct a, Punct b, Punct c)
+{
+	bool gasit = 0;
+	int i;
+	mutare.Jucator = 2;
+
+	if (!tablaJoc[a.x][a.y].Stiva.empty() && !tablaJoc[b.x][b.y].Stiva.empty() && tablaJoc[a.x][a.y].Stiva.top().Jucator == 2 && tablaJoc[b.x][b.y].Stiva.top().Jucator == 2)
+	{
+		if (tablaJoc[c.x][c.y].Stiva.empty()) //In caz ca locul e gol ,computerul pune prima piesa disponibila
+		{
+
+			i = gasirePiesaPotrivita();
+
+			managerPiese[i].x = c.x;
+			managerPiese[i].y = c.y;
+			managerPiese[i].peTabla = 1;
+
+			if (i == 1 || i == 2) mutare.DimensiunePiesa = 1;
+			else if (i == 3 || i == 4) mutare.DimensiunePiesa = 2;
+			else if (i == 5 || i == 6) mutare.DimensiunePiesa = 3;
+
+			tablaJoc[c.x][c.y].Stiva.push(mutare);
+			cout << "atac .1" << endl;
+			return 1;
+		}
+		else if (tablaPlina()) //Pune cea mai mare piesa disponibila
+		{
+			int pozitiePiesaMaxima = gasirePiesaPotrivita();
+
+			if (pozitiePiesaMaxima == 5 || pozitiePiesaMaxima == 6)	mutare.DimensiunePiesa = 3;
+			else if (pozitiePiesaMaxima == 3 || pozitiePiesaMaxima == 4)	mutare.DimensiunePiesa = 2;
+			else if (pozitiePiesaMaxima == 1 || pozitiePiesaMaxima == 2)	mutare.DimensiunePiesa = 1;
+
+			if (mutare.DimensiunePiesa > tablaJoc[c.x][c.y].Stiva.top().DimensiunePiesa)
+			{
+				managerPiese[pozitiePiesaMaxima].x = c.x;
+				managerPiese[pozitiePiesaMaxima].y = c.y;
+				managerPiese[pozitiePiesaMaxima].peTabla = 1;
+				mutare.Jucator = 2;
+				tablaJoc[c.x][c.y].Stiva.push(mutare);
+				cout << "Pus din atac .2  coords  " << c.x << " " << c.y << endl;
+				return 1;
+			}
+		}
+		
 	}
 	return 0;
 }
@@ -75,7 +196,7 @@ int mutareComputer()
 	a11.x = 1; a11.y = 1;
 	a12.x = 1; a12.y = 2;
 	a13.x = 1; a13.y = 3;
-	a21.x = 2; a21.y = 2;
+	a21.x = 2; a21.y = 1;
 	a22.x = 2; a22.y = 2;
 	a23.x = 2; a23.y = 3;
 	a31.x = 3; a31.y = 1;
@@ -122,15 +243,58 @@ int mutareComputer()
 	if (defensiva(a22, a31, a13)) return 1;
 	if (defensiva(a13, a31, a22)) return 1;
 
-	int contor = 0;
-	do 
-	{
-		contor++;
-		
-	} while (!managerPiese[contor].disponibil && contor < 6);
+	
+	// ATACA
 
+
+	//Prima linie
+	if (ataca(a11, a12, a13)) return 1;
+	if (ataca(a11, a13, a12)) return 1;
+	if (ataca(a12, a13, a11)) return 1;
+
+	//A doua linie
+	if (ataca(a21, a22, a23)) return 1;
+	if (ataca(a21, a23, a22)) return 1;
+	if (ataca(a22, a23, a21)) return 1;
+
+	//A treia linie
+	if (ataca(a31, a32, a33)) return 1;
+	if (ataca(a31, a33, a32)) return 1;
+	if (ataca(a32, a33, a31)) return 1;
+
+	//Prima coloana
+	if (ataca(a11, a21, a31)) return 1;
+	if (ataca(a11, a31, a21)) return 1;
+	if (ataca(a21, a31, a11)) return 1;
+
+	//A doua coloana
+	if (ataca(a12, a22, a32)) return 1;
+	if (ataca(a12, a32, a22)) return 1;
+	if (ataca(a22, a32, a12)) return 1;
+
+	//A treia coloana
+	if (ataca(a13, a23, a33)) return 1;
+	if (ataca(a13, a33, a23)) return 1;
+	if (ataca(a23, a33, a13)) return 1;
+
+	//Diagonala principala
+	if (ataca(a11, a22, a33)) return 1;
+	if (ataca(a11, a33, a22)) return 1;
+	if (ataca(a22, a33, a11)) return 1;
+
+	//Diagonala secundara
+	if (ataca(a13, a22, a31)) return 1;
+	if (ataca(a22, a31, a13)) return 1;
+	if (ataca(a13, a31, a22)) return 1;
+
+
+	int contor = gasirePiesaPotrivita();
 	mutare.Jucator = 2;
-	mutare.DimensiunePiesa = contor;
+
+	if (contor == 1 || contor == 2) mutare.DimensiunePiesa = 1;
+	else if (contor == 3 || contor == 4) mutare.DimensiunePiesa = 2;
+	else if (contor == 5 || contor == 6) mutare.DimensiunePiesa = 3;
+	
 
 	
 	if (tablaJoc[2][2].Stiva.empty())
@@ -139,6 +303,7 @@ int mutareComputer()
 		managerPiese[contor].x = 2;
 		managerPiese[contor].y = 2;
 		return 1;
+		
 	}
 	
 	if (tablaJoc[1][1].Stiva.empty()) {
@@ -146,6 +311,7 @@ int mutareComputer()
 		managerPiese[contor].x = 1;
 		managerPiese[contor].y = 1;
 		return 1;
+		
 	}
 	
 	if (tablaJoc[1][3].Stiva.empty()) {
@@ -180,7 +346,6 @@ int mutareComputer()
 	{
 		for (int j = 1; j <= 3; j++)
 		{
-			cout << "PULA PIZDA COAIELE";
 			if (tablaJoc[i][j].Stiva.empty())
 			{
 				mutare.Jucator = 2;
@@ -238,3 +403,67 @@ void evidentaMutariPlayer(int x , int y , int marimePiesa)
 	}
 }
 
+int main()
+{
+	randJucator = 1;
+	while (!endGame) {
+		cout << endl << "Alege o piesa de pe margine : 1" << endl;
+		cout << "Alege o piesa de pe tabla: 2" << endl;
+		cout << "Optiunea si coordonatele piese : "; cin >> option >> x >> y;
+
+		if (option == 1)
+		{
+			cout << "Marimea piesei : "; cin >> marimePiesa;
+			mutare.Jucator = randJucator;
+			mutare.DimensiunePiesa = marimePiesa;
+			evidentaMutariPlayer(x, y, marimePiesa);
+			
+		}
+		else if (option == 2)
+		{
+			if (!tablaJoc[x][y].Stiva.empty() && tablaJoc[x][y].Stiva.top().Jucator == randJucator)
+			{
+				mutare.DimensiunePiesa = tablaJoc[x][y].Stiva.top().DimensiunePiesa;
+				mutare.Jucator = randJucator;
+				tablaJoc[x][y].Stiva.pop();
+				cout << "Unde doriti sa o mutati ? "; cin >> x >> y;
+				evidentaMutariPlayer(x, y, mutare.DimensiunePiesa);
+			}
+		}
+
+		if (tablaJoc[x][y].Stiva.empty()) tablaJoc[x][y].Stiva.push(mutare);
+		else if (tablaJoc[x][y].Stiva.size() < 3 && tablaJoc[x][y].Stiva.top().DimensiunePiesa < mutare.DimensiunePiesa) {
+			
+			if (mutare.DimensiunePiesa == 1)
+			{
+				if (managerPiese[1].x == x && managerPiese[1].y == y) managerPiese[1].disponibil = 0;
+				if (managerPiese[2].x == x && managerPiese[2].y == y) managerPiese[2].disponibil = 0;
+			}
+
+			if (mutare.DimensiunePiesa == 2)
+			{
+				if (managerPiese[3].x == x && managerPiese[3].y == y) managerPiese[3].disponibil = 0;
+				if (managerPiese[4].x == x && managerPiese[4].y == y) managerPiese[4].disponibil = 0;
+			}
+
+			if (mutare.DimensiunePiesa == 3)
+			{
+				if (managerPiese[5].x == x && managerPiese[5].y == y) managerPiese[5].disponibil = 0;
+				if (managerPiese[5].x == x && managerPiese[6].y == y) managerPiese[6].disponibil = 0;
+			}
+
+			tablaJoc[x][y].Stiva.push(mutare);
+		}
+
+
+
+
+		afiseazaMatrice();
+		cout << endl;
+		mutareComputer();
+		afiseazaMatrice();
+
+		if (verificareSfarsitJoc(x, y) == 1) cout << "Jucatorul 1 a castigat !", endGame = true;
+		else if (verificareSfarsitJoc(x, y) == 2) cout << "Jucatorul 2 a castigat !", endGame = true;
+	}	
+}
