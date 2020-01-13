@@ -1,0 +1,61 @@
+#include <iostream>
+#include <stdlib.h>
+#include <Windows.h>
+using namespace std;
+
+void timer(int hours, int minutes, int seconds) {
+	for (;;) {
+		
+		if (!hours && !minutes && !seconds) break;
+
+		if (!seconds && minutes > 0) {
+			seconds = 59;
+			minutes--;
+		}
+		if (!minutes && hours > 0) {
+			minutes = 59;
+			hours--;
+		}
+		
+		system("cls");
+
+		if (hours < 10) cout << "0" << hours << ":";
+		else cout << hours << ":";
+		if (minutes < 10) cout << "0" << minutes << ":";
+		else cout << minutes << ":";
+		if (seconds < 10) cout << "0" << seconds;
+		else cout << seconds;
+		seconds--;
+		Sleep(1000);
+	}
+}
+
+void cronometru() {
+	int hours, minutes, seconds;
+	hours = minutes = seconds = 0;
+	for (;;) {
+		seconds++;
+		if (seconds == 60) {
+			seconds = 0;
+			minutes++;
+		}
+		if (minutes == 60) {
+			minutes = 0;
+			hours++;
+		}
+
+		system("cls");
+		if (hours < 10) cout << "0" << hours << ":";
+		else cout << hours << ":";
+		if (minutes < 10) cout << "0" << minutes << ":";
+		else cout << minutes << ":";
+		if (seconds < 10) cout << "0" << seconds;
+		else cout << seconds;
+		Sleep(1000);
+	}
+}
+
+int main()
+{
+	timer(1, 10, 10);
+}
