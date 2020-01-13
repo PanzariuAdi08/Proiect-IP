@@ -652,7 +652,6 @@ int gasirePiesaPotrivita()
     {
         for (int i = 6; i >= 1; i--)
         {
-            cout <<"mortii ma-tii"<<endl;
             if (managerPiese[i].disponibil)
                 return i;
         }
@@ -757,28 +756,27 @@ int ataca(Punct a, Punct b, Punct c)
 			cout << "atac .1" << endl;
 			return 1;
 		}
-		else if (tablaPlina()) //Pune cea mai mare piesa disponibila
+		else
 		{
-			int pozitiePiesaMaxima = gasirePiesaPotrivita();
+		    i = gasirePiesaPotrivita();
+		    if (i == 1 || i == 2) mutare.DimensiunePiesa = 1;
+			else if (i == 3 || i == 4) mutare.DimensiunePiesa = 2;
+			else if (i == 5 || i == 6) mutare.DimensiunePiesa = 3;
 
-			if (pozitiePiesaMaxima == 5 || pozitiePiesaMaxima == 6)	mutare.DimensiunePiesa = 3;
-			else if (pozitiePiesaMaxima == 3 || pozitiePiesaMaxima == 4)	mutare.DimensiunePiesa = 2;
-			else if (pozitiePiesaMaxima == 1 || pozitiePiesaMaxima == 2)	mutare.DimensiunePiesa = 1;
-
-			if (mutare.DimensiunePiesa > tablaJoc[c.x][c.y].Stiva.top().DimensiunePiesa)
-			{
-				managerPiese[pozitiePiesaMaxima].x = c.x;
-				managerPiese[pozitiePiesaMaxima].y = c.y;
-				managerPiese[pozitiePiesaMaxima].peTabla = 1;
-				mutare.Jucator = 2;
-
-				tablaJoc[c.x][c.y].Stiva.push(mutare);
-				inlocuire(pozitiePiesaMaxima);
-				graficMutareCalculator(pozitiePiesaMaxima,c.x,c.y);
-				cout << "Pus din atac .2  coords  " << c.x << " " << c.y << endl;
-				return 1;
-			}
-
+			if(mutare.DimensiunePiesa > tablaJoc[c.x][c.y].Stiva.top().DimensiunePiesa)
+            {
+                managerPiese[i].x = c.x;
+                managerPiese[i].y = c.y;
+                managerPiese[i].peTabla = 1;
+                mutare.Jucator = 2;
+                tablaJoc[managerPiese[i].x][managerPiese[i].y].Stiva.pop();
+                tablaJoc[c.x][c.y].Stiva.push(mutare);
+                inlocuire(i);
+                graficMutareCalculator(i,c.x,c.y);
+                verificareSfarsitJoc();
+                cout << "atac .2" << endl;
+                return 1;
+            }
 		}
 
 	}
@@ -795,47 +793,6 @@ int mutareComputer()
 	a31.x = 3; a31.y = 1;
 	a32.x = 3; a32.y = 2;
 	a33.x = 3; a33.y = 3;
-
-	//Prima linie
-	if (defensiva(a11, a12, a13)) return 1;
-	if (defensiva(a11, a13, a12)) return 1;
-	if (defensiva(a12, a13, a11)) return 1;
-
-	//A doua linie
-	if (defensiva(a21, a22, a23)) return 1;
-	if (defensiva(a21, a23, a22)) return 1;
-	if (defensiva(a22, a23, a21)) return 1;
-
-	//A treia linie
-	if (defensiva(a31, a32, a33)) return 1;
-	if (defensiva(a31, a33, a32)) return 1;
-	if (defensiva(a32, a33, a31)) return 1;
-
-	//Prima coloana
-	if (defensiva(a11, a21, a31)) return 1;
-	if (defensiva(a11, a31, a21)) return 1;
-	if (defensiva(a21, a31, a11)) return 1;
-
-	//A doua coloana
-	if (defensiva(a12, a22, a32)) return 1;
-	if (defensiva(a12, a32, a22)) return 1;
-	if (defensiva(a22, a32, a12)) return 1;
-
-	//A treia coloana
-	if (defensiva(a13, a23, a33)) return 1;
-	if (defensiva(a13, a33, a23)) return 1;
-	if (defensiva(a23, a33, a13)) return 1;
-
-	//Diagonala principala
-	if (defensiva(a11, a22, a33)) return 1;
-	if (defensiva(a11, a33, a22)) return 1;
-	if (defensiva(a22, a33, a11)) return 1;
-
-	//Diagonala secundara
-	if (defensiva(a13, a22, a31)) return 1;
-	if (defensiva(a22, a31, a13)) return 1;
-	if (defensiva(a13, a31, a22)) return 1;
-
 
 	// ATACA
 
@@ -879,6 +836,50 @@ int mutareComputer()
 	if (ataca(a13, a22, a31)) return 1;
 	if (ataca(a22, a31, a13)) return 1;
 	if (ataca(a13, a31, a22)) return 1;
+
+
+
+	//Prima linie
+	if (defensiva(a11, a12, a13)) return 1;
+	if (defensiva(a11, a13, a12)) return 1;
+	if (defensiva(a12, a13, a11)) return 1;
+
+	//A doua linie
+	if (defensiva(a21, a22, a23)) return 1;
+	if (defensiva(a21, a23, a22)) return 1;
+	if (defensiva(a22, a23, a21)) return 1;
+
+	//A treia linie
+	if (defensiva(a31, a32, a33)) return 1;
+	if (defensiva(a31, a33, a32)) return 1;
+	if (defensiva(a32, a33, a31)) return 1;
+
+	//Prima coloana
+	if (defensiva(a11, a21, a31)) return 1;
+	if (defensiva(a11, a31, a21)) return 1;
+	if (defensiva(a21, a31, a11)) return 1;
+
+	//A doua coloana
+	if (defensiva(a12, a22, a32)) return 1;
+	if (defensiva(a12, a32, a22)) return 1;
+	if (defensiva(a22, a32, a12)) return 1;
+
+	//A treia coloana
+	if (defensiva(a13, a23, a33)) return 1;
+	if (defensiva(a13, a33, a23)) return 1;
+	if (defensiva(a23, a33, a13)) return 1;
+
+	//Diagonala principala
+	if (defensiva(a11, a22, a33)) return 1;
+	if (defensiva(a11, a33, a22)) return 1;
+	if (defensiva(a22, a33, a11)) return 1;
+
+	//Diagonala secundara
+	if (defensiva(a13, a22, a31)) return 1;
+	if (defensiva(a22, a31, a13)) return 1;
+	if (defensiva(a13, a31, a22)) return 1;
+
+
 
 
 	int contor = gasirePiesaPotrivita();
@@ -1411,14 +1412,14 @@ void joaca(int gamemode)
             endGame = true;
             j1.punctaj++;
             textcastigator();
-            delay(2000);
+            delay(200000);
         }
         else if (verificareSfarsitJoc() == 2)
         {
             j2.punctaj++;
             endGame = true;
             textcastigator();
-            delay(2000);
+            delay(200000);
         }
         if(gamemode == MULTIPLAYER)
         {
@@ -1437,14 +1438,14 @@ void joaca(int gamemode)
                     endGame = true;
                     j1.punctaj++;
                     textcastigator();
-                    delay(2000);
+                    delay(200000);
                 }
         else if (verificareSfarsitJoc() == 2)
             {
                     j2.punctaj++;
                     endGame = true;
                     textcastigator();
-                    delay(2000);
+                    delay(200000);
             }
 
             }
@@ -1458,14 +1459,14 @@ void joaca(int gamemode)
                     endGame = true;
                     j1.punctaj++;
                     textcastigator();
-                    delay(2000);
+                    delay(200000);
                 }
             else if (verificareSfarsitJoc() == 2)
             {
                     j2.punctaj++;
                     endGame = true;
                     textcastigator();
-                    delay(2000);
+                    delay(200000);
                 }
                 }
         }
@@ -1479,7 +1480,7 @@ int main()
     initwindow(1366,764);
     latime=getmaxx();
     inaltime=getmaxy();
-    joaca(3);
+    joaca(2);
     getch();
     closegraph();
 }
