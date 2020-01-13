@@ -364,6 +364,59 @@ int mutareComputer()
 	
 }
 
+
+int mutareComputerAleatoriu()
+{
+	bool gasit = 0;
+	int randomI, randomJ;
+	mutare.Jucator = 2;
+	while (!gasit)
+	{
+		randomI = rand() % 4;
+		randomJ = rand() % 4;
+		if (!randomI) randomI++;
+		if (!randomJ) randomJ++;
+		if (tablaJoc[randomI][randomJ].Stiva.empty())
+		{
+			mutare.Jucator = 2;
+			int marime = gasirePiesaPotrivita();
+			if (marime == 1 || marime == 2) mutare.DimensiunePiesa = 1;
+			else if (marime == 3 || marime == 4) mutare.DimensiunePiesa = 2;
+			else if (marime == 5 || marime == 6) mutare.DimensiunePiesa = 3;
+			managerPiese[marime].peTabla = 1;
+			tablaJoc[randomI][randomJ].Stiva.push(mutare);
+			gasit = 1;
+			return 1;
+		}
+		else if (tablaPlina()) 
+		{
+			bool gata = 0;
+			int rndI, rndJ;
+			while (!gata)
+			{
+				rndI = rand() % 4;
+				rndJ = rand() % 4;
+				if (!rndI) rndI++;
+				if (!rndJ) rndJ++;
+				int marime = gasirePiesaPotrivita();
+				if (marime == 1 || marime == 2) mutare.DimensiunePiesa = 1;
+				else if (marime == 3 || marime == 4) mutare.DimensiunePiesa = 2;
+				else if (marime == 5 || marime == 6) mutare.DimensiunePiesa = 3;
+				
+				if (tablaJoc[rndI][rndJ].Stiva.top().DimensiunePiesa < mutare.DimensiunePiesa && managerPiese[marime].disponibil)
+				{
+					managerPiese[marime].peTabla = 1;
+					tablaJoc[rndI][rndJ].Stiva.push(mutare);
+					gata = 1;
+					return 1;
+				}
+			}
+		}
+	}
+	return 0;
+}
+
+
 void evidentaMutariPlayer(int x , int y , int marimePiesa)
 {
 	if (marimePiesa == 1)
