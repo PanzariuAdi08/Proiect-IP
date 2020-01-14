@@ -53,7 +53,6 @@ struct evidentaPiese {
 }managerPiese[7] , managerPiesePlayer[7];
 void buton(int x, int y,char *text, int stare)
 {
-    int latime=getmaxx(),inaltime=getmaxy();
     if(stare==RELAXAT)
     {
         setcolor(BLUE);
@@ -442,10 +441,11 @@ int selecteazaoptiune()
                     for(i=0; i<=5; i++)
                         if(x>j1.lpiese[i].x1 && x<j1.lpiese[i].x2 && y>j1.lpiese[i].y1 && y<j1.lpiese[i].y2)
                             if(i<=1)
-                                if(j1.pozitie[0]==0 || j1.pozitie[1]==0)
+                                if(j1.pozitie[i]==0)
                                 {
                                     marimePiesa=3;
                                     selecteaza(i);
+                                    return 0;
                                 }
                                 else
                                     {
@@ -453,26 +453,29 @@ int selecteazaoptiune()
                                     return 0;
                                     }
                             else if(i<=3)
-                                if(j1.pozitie[2]==0 || j1.pozitie[3]==0)
+                                if(j1.pozitie[i]==0)
                                 {
                                     marimePiesa=2;
                                     selecteaza(i);
+                                    return 0;
                                 }
                                 else
                                     {
                                     option=INVALID;
                                     return 0;
                                     }
-                            else if(j1.pozitie[4]==0 || j1.pozitie[5]==0)
+                            else if(j1.pozitie[i]==0)
                             {
                                 marimePiesa=1;
                                 selecteaza(i);
+                                return 0;
                             }
                             else
                                 {
                                     option=INVALID;
                                     return 0;
                                 }
+                            option=INVALID;
 
                 }
                 else if(x>latime*0.254 && x<latime*0.254+inaltime*0.85 && y>inaltime*0.15)
@@ -521,10 +524,11 @@ int selecteazaoptiune()
                     for(i=0; i<=5; i++)
                         if(x>j2.lpiese[i].x1 && x<j2.lpiese[i].x2 && y>j2.lpiese[i].y1 && y<j2.lpiese[i].y2)
                             if(i<=1)
-                                if(j2.pozitie[0]==0 || j2.pozitie[1]==0)
+                                if(j2.pozitie[i]==0)
                                 {
                                     marimePiesa=3;
                                     selecteaza(i);
+                                    return 0;
                                 }
                                 else
                                 {
@@ -532,26 +536,29 @@ int selecteazaoptiune()
                                     return 0;
                                 }
                             else if(i<=3)
-                                if(j2.pozitie[2]==0 || j2.pozitie[3]==0)
+                                if(j2.pozitie[i]==0)
                                 {
                                     marimePiesa=2;
                                     selecteaza(i);
+                                    return 0;
                                 }
                                 else
                                 {
                                     option=INVALID;
                                     return 0;
                                 }
-                            else if(j2.pozitie[4]==0 || j2.pozitie[5]==0)
+                            else if(j2.pozitie[i]==0)
                             {
                                 marimePiesa=1;
                                 selecteaza(i);
+                                return 0;
                             }
                             else
                             {
                                 option=INVALID;
                                 return 0;
                             }
+                        option=INVALID;
 
                 }
                 else if(x>latime*0.254 && x<latime*0.254+inaltime*0.85 && y>inaltime*0.15)
@@ -596,8 +603,16 @@ int selecteazaoptiune()
 }
 void mutapiesamargine()
 {
+    float marime;
     if(randJucator==1)
     {
+        if(j1.selectat<2)
+            marime=MARE;
+        else if(j1.selectat<4)
+            marime=MIJLOCIE;
+        else
+            marime=MIC;
+        piesa(j1.lpiese[j1.selectat].x1+(j1.lpiese[j1.selectat].x2-j1.lpiese[j1.selectat].x1)/2,j1.lpiese[j1.selectat].y1+(j1.lpiese[j1.selectat].y2-j1.lpiese[j1.selectat].y1)/2,marime,BLACK,NESELECTAT);
         j1.lpiese[j1.selectat].x1=tabla1[x][y].x1;
         j1.lpiese[j1.selectat].x2=tabla1[x][y].x2;
         j1.lpiese[j1.selectat].y1=tabla1[x][y].y1;
@@ -607,6 +622,13 @@ void mutapiesamargine()
     }
     else
     {
+        if(j2.selectat<2)
+            marime=MARE;
+        else if(j2.selectat<4)
+            marime=MIJLOCIE;
+        else
+            marime=MIC;
+        piesa(j2.lpiese[j2.selectat].x1+(j2.lpiese[j2.selectat].x2-j2.lpiese[j2.selectat].x1)/2,j2.lpiese[j2.selectat].y1+(j2.lpiese[j2.selectat].y2-j2.lpiese[j2.selectat].y1)/2,marime,BLACK,NESELECTAT);
         j2.lpiese[j2.selectat].x1=tabla1[x][y].x1;
         j2.lpiese[j2.selectat].x2=tabla1[x][y].x2;
         j2.lpiese[j2.selectat].y1=tabla1[x][y].y1;
@@ -614,6 +636,7 @@ void mutapiesamargine()
         j2.pozitie[j2.selectat]=x*10+y;
         selecteaza(j2.selectat);
     }
+    creeazapiese();
 }
 struct Piesa
 {
@@ -708,6 +731,15 @@ int gasirePiesaPotrivita()
 }
 void graficMutareCalculator(int m, int i, int j)
 {
+    float marime;
+    if(j1.selectat<2)
+            marime=MARE;
+        else if(j1.selectat<4)
+            marime=MIJLOCIE;
+        else
+            marime=MIC;
+        piesa(j2.lpiese[m].x1+(j2.lpiese[m].x2-j2.lpiese[m].x1)/2,j2.lpiese[m].y1+(j2.lpiese[m].y2-j2.lpiese[m].y1)/2,marime,BLACK,NESELECTAT);
+
     j2.lpiese[m].x1=tabla1[i][j].x1;
     j2.lpiese[m].x2=tabla1[i][j].x2;
     j2.lpiese[m].y1=tabla1[i][j].y1;
@@ -1292,7 +1324,6 @@ void joaca(int gamemode)
     creeazatabla();
     while (!endGame)
     {
-        creeazatabla();
         timer();
         textjucatori();
         m=-1;
@@ -1362,7 +1393,6 @@ void joaca(int gamemode)
                 if(x!=-1)
                     if(x==0)
                     {
-                    creeazatabla();
                     textmutareinvalida();
                     delay(2000);
                     }
@@ -1445,7 +1475,6 @@ void joaca(int gamemode)
 			}
         }
         mutapiesamargine();
-        creeazatabla();
         if (verificareSfarsitJoc() == 1)
         {
             endGame = true;
@@ -1471,7 +1500,7 @@ void joaca(int gamemode)
             if(gamemode == CALCULATOR_STRATEGIE && endGame == false)
             {
                 mutareComputer();
-                creeazatabla();
+                creeazapiese();
                 if (verificareSfarsitJoc() == 1)
                 {
                     endGame = true;
@@ -1492,7 +1521,7 @@ void joaca(int gamemode)
                 if(gamemode == CALCULATOR_ALEATORIU && endGame == false)
                 {
                     mutareComputerAleatoriu();
-                    creeazatabla();
+                    creeazapiese();
                 if (verificareSfarsitJoc() == 1)
                 {
                     endGame = true;
@@ -1512,6 +1541,7 @@ void joaca(int gamemode)
     afiseazaMatrice();
     }
     clearmouseclick(WM_LBUTTONUP);
+    clearmouseclick(WM_LBUTTONDOWN);
     int z=latime/2,w,semafor2=CONTINUA;
     setcolor(MAGENTA);
     rectangle(latime/7,inaltime/4,latime-latime/7,inaltime-inaltime/4);
@@ -1519,6 +1549,8 @@ void joaca(int gamemode)
     floodfill(latime/2,inaltime/2,MAGENTA);
     do
     {
+        clearmouseclick(WM_LBUTTONUP);
+        clearmouseclick(WM_LBUTTONDOWN);
         w=inaltime/2.8;
         if(mousex()>z-latime/4 && mousex()<z+latime/4 && mousey()>w-inaltime/20 && mousey()<w+inaltime/20)
         {
@@ -1526,6 +1558,7 @@ void joaca(int gamemode)
             if(ismouseclick(WM_LBUTTONUP))
             {
                 clearmouseclick(WM_LBUTTONUP);
+                clearmouseclick(WM_LBUTTONDOWN);
                 semafor2=OPRESTE;
             }
         }
@@ -1538,6 +1571,7 @@ void joaca(int gamemode)
             if(ismouseclick(WM_LBUTTONUP))
             {
                 clearmouseclick(WM_LBUTTONUP);
+                clearmouseclick(WM_LBUTTONDOWN);
                 semafor2=OPRESTE;
                 semafor=OPRESTE;
             }
@@ -1565,7 +1599,7 @@ void titlu()
 }
 void OPTIUNI()
 {
-    int i,x,y,ok=1;
+    int i,x,y,ok=1,r;
     clearmouseclick(WM_LBUTTONDOWN);
     setbkcolor(BLACK);
     cleardevice();
@@ -1577,14 +1611,19 @@ void OPTIUNI()
     outtextxy(latime/2,inaltime/4,"MUZICA");
     outtextxy(latime*0.07,inaltime/2,"JUCATOR 1:");
     outtextxy(latime*0.07,inaltime/1.3,"JUCATOR 2:");
-    setbkcolor(LIGHTGRAY);
-    outtextxy(175,100,"APLICA");
-    rectangle(50,50,300,150);
-    setfillstyle(SOLID_FILL,LIGHTGRAY);
-    floodfill(175,100,WHITE);
     rectangle(728,172,757,190);
     do
     {
+        latime=latime/3;
+    if(mousex()>50 && mousex()<300 && mousey()>50 && mousey()<150)
+        {
+        buton(175,100,"APLICA",APASAT);
+        }
+    else
+        {
+        buton(175,100,"APLICA",RELAXAT);
+        }
+        latime=getmaxx();
     for(i=1;i<=4;i++)
         if(J1!=i)
             piesa(latime*0.2*i,inaltime/2,MARE,i,NESELECTAT);
@@ -1599,6 +1638,7 @@ void OPTIUNI()
     {
         x=mousex();
         y=mousey();
+        clearmouseclick(WM_LBUTTONUP);
         clearmouseclick(WM_LBUTTONDOWN);
         if(x>728 && x<757 && y>172 && y<190)
             if(music==1)
@@ -1706,7 +1746,9 @@ int meniu()
     y=inaltime/3;
     if(mousex()>x-latime/4 && mousex()<x+latime/4 && mousey()>y-inaltime/20 && mousey()<y+inaltime/20)
     {
-        buton(x,y,"INCEPE JOC",APASAT);
+        if(ismouseclick(WM_LBUTTONDOWN))
+            sound(2),clearmouseclick(WM_LBUTTONDOWN);
+        buton(x,y,"     INCEPE JOC     ",APASAT);
         if(ismouseclick(WM_LBUTTONUP))
         {
             clearmouseclick(WM_LBUTTONUP);
@@ -1715,11 +1757,11 @@ int meniu()
         }
     }
     else
-        buton(x,y,"INCEPE JOC",RELAXAT);
+        buton(x,y,"I N C E P E    J O C",RELAXAT);
     y=inaltime/2;
     if(mousex()>x-latime/4 && mousex()<x+latime/4 && mousey()>y-inaltime/20 && mousey()<y+inaltime/20)
     {
-        buton(x,y,"OPTIUNI",APASAT);
+        buton(x,y,"    OPTIUNI    ",APASAT);
          if(ismouseclick(WM_LBUTTONUP))
          {
              clearmouseclick(WM_LBUTTONUP);
@@ -1728,18 +1770,19 @@ int meniu()
          }
     }
     else
-        buton(x,y,"OPTIUNI",RELAXAT);
+        buton(x,y,"O P T I U N I",RELAXAT);
     y=inaltime*4/6;
     if(mousex()>x-latime/4 && mousex()<x+latime/4 && mousey()>y-inaltime/20 && mousey()<y+inaltime/20)
     {
-        buton(x,y,"IESIRE JOC",APASAT);
+        buton(x,y,"     IESIRE JOC     ",APASAT);
         if(ismouseclick(WM_LBUTTONUP))
             j=OPRESTE;
     }
     else
-        buton(x,y,"IESIRE JOC",RELAXAT);
+        buton(x,y,"I E S I R E   J O C",RELAXAT);
     clearmouseclick(WM_LBUTTONUP);
-    delay(100);
+    clearmouseclick(WM_LBUTTONDOWN);
+   delay(100);
     }
     while(j);
     return 0;
